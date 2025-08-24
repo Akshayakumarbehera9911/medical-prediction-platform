@@ -1,0 +1,284 @@
+{% extends "base.html" %}
+
+{% block title %}Heart Disease Prediction - MediPredict{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cardiovascular.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <div class="form-container cardio-form">
+        <a href="/" class="back-btn">← Back to Home</a>
+
+        <div class="prediction-container">
+            <div class="form-header">
+                <h2>❤️ Heart Disease Prediction</h2>
+                <p>Cardiovascular risk assessment using clinical parameters</p>
+            </div>
+
+            <div class="form-instructions">
+                <strong>Instructions:</strong> Please enter your clinical test results and health information. Consult
+                your medical records or healthcare provider for accurate values.
+            </div>
+
+            <form id="cardiovascular-form">
+                <div class="form-section">
+                    <h3 class="section-title">Demographics</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="age" class="form-label">Age:</label>
+                            <input type="number" id="age" class="form-input" min="1" max="120" step="1" required>
+                            <div class="input-hint">Enter your age in years</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Sex:</label>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="sex" value="1" required>
+                                    <span>👨 Male</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="sex" value="0" required>
+                                    <span>👩 Female</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="section-title">Chest Pain & Symptoms</h3>
+                    <div class="form-group">
+                        <label class="form-label">Chest Pain Type:</label>
+                        <div class="radio-group multi-radio">
+                            <label class="radio-option">
+                                <input type="radio" name="chest_pain_type" value="0" required>
+                                <span>0 - Typical Angina</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="chest_pain_type" value="1" required>
+                                <span>1 - Atypical Angina</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="chest_pain_type" value="2" required>
+                                <span>2 - Non-anginal Pain</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="chest_pain_type" value="3" required>
+                                <span>3 - Asymptomatic</span>
+                            </label>
+                        </div>
+                        <div class="input-hint">Select the type of chest pain you experience</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Exercise Induced Angina:</label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="exercise_angina" value="1" required>
+                                <span>✓ Yes</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="exercise_angina" value="0" required>
+                                <span>✗ No</span>
+                            </label>
+                        </div>
+                        <div class="input-hint">Do you experience chest pain during exercise?</div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="section-title">Vital Signs & Lab Values</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="resting_bp" class="form-label">Resting Blood Pressure:</label>
+                            <input type="number" id="resting_bp" class="form-input" min="80" max="250" step="1"
+                                required>
+                            <div class="input-hint">Systolic BP in mmHg (Normal: 90-140)</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="cholesterol" class="form-label">Cholesterol:</label>
+                            <input type="number" id="cholesterol" class="form-input" min="100" max="600" step="1"
+                                required>
+                            <div class="input-hint">Total cholesterol in mg/dL (Normal: <200)< /div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="max_heart_rate" class="form-label">Max Heart Rate Achieved:</label>
+                                <input type="number" id="max_heart_rate" class="form-input" min="60" max="220" step="1"
+                                    required>
+                                <div class="input-hint">Maximum heart rate during stress test (bpm)</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="oldpeak" class="form-label">Oldpeak (ST Depression):</label>
+                                <input type="number" id="oldpeak" class="form-input" min="0" max="10" step="0.1"
+                                    required>
+                                <div class="input-hint">ST depression induced by exercise (mm)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="section-title">Medical History</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Fasting Blood Sugar > 120 mg/dL:</label>
+                                <div class="radio-group">
+                                    <label class="radio-option">
+                                        <input type="radio" name="fasting_bs" value="1" required>
+                                        <span>✓ Yes</span>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="fasting_bs" value="0" required>
+                                        <span>✗ No</span>
+                                    </label>
+                                </div>
+                                <div class="input-hint">Is your fasting blood sugar elevated?</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Rest ECG Results:</label>
+                                <div class="radio-group multi-radio">
+                                    <label class="radio-option">
+                                        <input type="radio" name="rest_ecg" value="0" required>
+                                        <span>0 - Normal</span>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="rest_ecg" value="1" required>
+                                        <span>1 - ST-T Abnormality</span>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="rest_ecg" value="2" required>
+                                        <span>2 - Left Ventricular Hypertrophy</span>
+                                    </label>
+                                </div>
+                                <div class="input-hint">Select your ECG result category</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="section-title">Advanced Cardiac Parameters</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Slope of Peak Exercise ST Segment:</label>
+                                <div class="radio-group multi-radio">
+                                    <label class="radio-option">
+                                        <input type="radio" name="slope" value="0" required>
+                                        <span>0 - Upsloping</span>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="slope" value="1" required>
+                                        <span>1 - Flat</span>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="slope" value="2" required>
+                                        <span>2 - Downsloping</span>
+                                    </label>
+                                </div>
+                                <div class="input-hint">Slope pattern during stress test</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Number of Major Vessels (0-3):</label>
+                                <div class="radio-group">
+                                    <label class="radio-option">
+                                        <input type="radio" name="major_vessels" value="0" required>
+                                        <span>0</span>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="major_vessels" value="1" required>
+                                        <span>1</span>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="major_vessels" value="2" required>
+                                        <span>2</span>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="major_vessels" value="3" required>
+                                        <span>3</span>
+                                    </label>
+                                </div>
+                                <div class="input-hint">Vessels colored by fluoroscopy</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Thalassemia:</label>
+                                <div class="radio-group multi-radio">
+                                    <label class="radio-option">
+                                        <input type="radio" name="thal" value="1" required>
+                                        <span>1 - Normal</span>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="thal" value="2" required>
+                                        <span>2 - Fixed Defect</span>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="thal" value="3" required>
+                                        <span>3 - Reversible Defect</span>
+                                    </label>
+                                </div>
+                                <div class="input-hint">Thallium stress test result</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="predict-btn" class="predict-btn">
+                        💓 Assess Heart Disease Risk
+                    </button>
+
+                    <input type="hidden" id="sex">
+                    <input type="hidden" id="chest_pain_type">
+                    <input type="hidden" id="fasting_bs">
+                    <input type="hidden" id="rest_ecg">
+                    <input type="hidden" id="exercise_angina">
+                    <input type="hidden" id="slope">
+                    <input type="hidden" id="major_vessels">
+                    <input type="hidden" id="thal">
+            </form>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    ['sex', 'chest_pain_type', 'fasting_bs', 'rest_ecg', 'exercise_angina', 'slope', 'major_vessels', 'thal'].forEach(function (name) {
+                        document.querySelectorAll('input[name="' + name + '"]').forEach(function (radio) {
+                            radio.addEventListener('change', function () {
+                                document.getElementById(name).value = this.value;
+                                // Trigger input event for field validation
+                                document.getElementById(name).dispatchEvent(new Event('input'));
+                            });
+                        });
+                    });
+                });
+            </script>
+
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Analyzing your cardiovascular data...</p>
+            </div>
+
+            <div class="result-container" id="result-container">
+                <div class="result-text" id="result-text"></div>
+                
+            </div>
+
+            <div class="disclaimer">
+                <svg viewBox="0 0 24 24">
+                    <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
+                </svg>
+                <p><strong>Medical Disclaimer:</strong> This cardiovascular risk assessment is for educational purposes
+                    only and should not replace professional medical evaluation. Cardiac conditions require specialized
+                    medical attention. Please consult with cardiologists or healthcare professionals for accurate
+                    diagnosis and treatment.</p>
+            </div>
+
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block scripts %}
+    <script src="{{ url_for('static', filename='js/cardiovascular.js') }}"></script>
+    {% endblock %}

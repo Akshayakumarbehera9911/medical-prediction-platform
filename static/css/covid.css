@@ -1,0 +1,603 @@
+/* ========== COVID-19 SPECIFIC STYLES ========== */
+
+/* Updated COVID-19 Theme - Matching Home Page Pink Theme */
+:root {
+    --covid-primary: #be185d;           /* Match your main pink */
+    --covid-secondary: #a3185a;         /* Darker pink for depth */
+    --covid-gradient: linear-gradient(135deg, #fff0f5, #fdf2f8); /* Match navbar gradient */
+    --covid-accent: linear-gradient(135deg, #be185d, #e91e63);   /* Pink accent gradient */
+    --covid-light: rgba(190, 24, 93, 0.1);     /* Light pink background */
+    --covid-border: rgba(255, 182, 193, 0.3);  /* Soft pink borders */
+    --covid-shadow: rgba(236, 72, 153, 0.1);   /* Soft pink shadow */
+    --text-primary: #2d3748;                  /* Match home page text */
+    --text-secondary: #4a5568;                /* Secondary text color */
+    --white-soft: rgba(255, 255, 255, 0.95);  /* Soft white background */
+    --covid-positive: #e74c3c;
+    --covid-negative: #27ae60;
+}
+
+/* Enhanced smooth pinkish-white background */
+.form-page {
+    background: linear-gradient(135deg, #fef7f0 0%, #fdf2f8 35%, #fff0f5 65%, #fef7f0 100%);
+    position: relative;
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+.form-page::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="covid-pattern" x="0" y="0" width="25" height="25" patternUnits="userSpaceOnUse"><circle cx="12.5" cy="12.5" r="0.8" fill="rgba(190,24,93,0.05)"/></pattern></defs><rect width="100%" height="100%" fill="url(%23covid-pattern)"/></svg>');
+    pointer-events: none;
+    opacity: 0.3;
+}
+
+/* Enhanced Glass-like Form Container */
+.covid-form {
+    position: relative;
+    z-index: 1;
+    border: 1px solid rgba(255, 182, 193, 0.4);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.25);        /* More glass-like transparency */
+    backdrop-filter: blur(20px);                   /* Glass blur effect */
+    -webkit-backdrop-filter: blur(20px);
+    padding: 2.5rem 3rem;
+    box-shadow: 0 12px 40px rgba(190, 24, 93, 0.15), 
+                inset 0 1px 0 rgba(255, 255, 255, 0.3); /* Glass highlight */
+    max-width: 800px;
+    margin: 2rem auto;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    display: flow-root;
+}
+
+.covid-form::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background: linear-gradient(135deg, rgba(190, 24, 93, 0.8), rgba(233, 30, 99, 0.8));
+    border-radius: 20px 20px 0 0;
+}
+
+.covid-form:hover {
+    background: rgba(255, 255, 255, 0.35);        /* Lighter on hover */
+    box-shadow: 0 16px 50px rgba(190, 24, 93, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+}
+
+/* Glass-like Form Title */
+.form-title {
+    background: linear-gradient(135deg, var(--covid-primary), #e91e63);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+    margin-bottom: 0.5rem;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+/* Form subtitle styling */
+.form-subtitle {
+    color: var(--text-secondary);
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+    font-weight: 400;
+}
+
+/* Enhanced Form Information Section */
+.form-info {
+    background: rgba(190, 24, 93, 0.1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--covid-border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    color: var(--covid-primary);
+    box-shadow: 0 4px 20px rgba(190, 24, 93, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.form-info strong {
+    color: var(--covid-secondary);
+}
+
+/* Ultra-clean Glass Sections - No borders at all */
+.form-section {
+    margin-bottom: 2rem;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-radius: 20px;
+    border: none; /* Remove all borders */
+    box-shadow: 0 6px 25px rgba(190, 24, 93, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.form-section::before {
+    display: none; /* Remove top line */
+}
+
+.section-title {
+    color: var(--covid-primary);
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0;
+    border-bottom: none; /* Remove bottom line */
+    display: flex;
+    align-items: center;
+}
+
+.section-title::before {
+    content: '🧪';
+    margin-right: 0.8rem;
+    font-size: 1.4rem;
+    filter: drop-shadow(0 2px 4px rgba(190, 24, 93, 0.2));
+}
+
+/* Section specific icons */
+.form-section:nth-child(3) .section-title::before { content: '🩸'; }
+.form-section:nth-child(4) .section-title::before { content: '⚪'; }
+.form-section:nth-child(5) .section-title::before { content: '🔴'; }
+.form-section:nth-child(6) .section-title::before { content: '🩸'; }
+
+/* Glass-like Form Inputs */
+.form-input {
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 182, 193, 0.4);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    font-size: 1rem;
+}
+
+.form-input:focus {
+    background: rgba(255, 255, 255, 0.4);
+    border-color: rgba(190, 24, 93, 0.6);
+    box-shadow: 0 0 0 3px rgba(190, 24, 93, 0.15),
+                inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    color: var(--covid-primary);
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    display: block;
+    font-size: 1rem;
+}
+
+/* Enhanced Input Hints */
+.input-hint {
+    position: relative;
+    font-size: 0.85rem;
+    color: rgba(190, 24, 93, 0.8);
+    font-weight: 500;
+    margin-top: 0.5rem;
+}
+
+.input-hint::before {
+    content: '📊 ';
+    font-size: 0.9em;
+    margin-right: 0.4rem;
+    opacity: 0.8;
+}
+
+/* Glass-like Predict Button */
+.predict-btn {
+    background: rgba(190, 24, 93, 0.8);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(190, 24, 93, 0.6);
+    border-radius: 25px;
+    color: white;
+    padding: 1rem 2.5rem;
+    font-weight: 700;
+    box-shadow: 0 8px 25px rgba(190, 24, 93, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.predict-btn:hover {
+    background: rgba(190, 24, 93, 0.9);
+    box-shadow: 0 12px 35px rgba(190, 24, 93, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    transform: translateY(-3px);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+/* Loading spinner */
+.spinner {
+    border: 3px solid var(--covid-light);
+    border-top: 3px solid var(--covid-primary);
+}
+
+/* Enhanced Glass-like Result Containers */
+.result-positive {
+    background: rgba(231, 76, 60, 0.15);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(231, 76, 60, 0.4);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 25px rgba(231, 76, 60, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    color: #c0392b;
+}
+
+.result-negative {
+    background: rgba(39, 174, 96, 0.15);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(39, 174, 96, 0.4);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 25px rgba(39, 174, 96, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    color: var(--covid-negative);
+}
+
+/* Enhanced Additional Conditions Display */
+.additional-conditions {
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    background: rgba(52, 152, 219, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(52, 152, 219, 0.3);
+    border-radius: 16px;
+    color: #2980b9;
+    box-shadow: 0 4px 20px rgba(52, 152, 219, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.additional-conditions h4 {
+    margin-bottom: 1rem;
+    color: #3498db;
+    font-size: 1.1rem;
+}
+
+.additional-conditions ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.additional-conditions li {
+    margin-bottom: 0.5rem;
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+.additional-conditions li::before {
+    content: '🔍';
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+/* Glass-like Back Button */
+.back-btn {
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 182, 193, 0.4);
+    border-radius: 12px;
+    color: var(--covid-primary);
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.back-btn:hover {
+    background: rgba(190, 24, 93, 0.15);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    transform: translateX(-5px);
+    box-shadow: 0 4px 15px rgba(190, 24, 93, 0.15);
+}
+
+/* Enhanced Form Disclaimer */
+.form-disclaimer {
+    margin-top: 2rem;
+    padding: 1.25rem;
+    background: rgba(255, 193, 7, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-radius: 16px;
+    font-size: 0.9rem;
+    color: #856404;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(255, 193, 7, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Enhanced Input Validation Styling */
+.form-input.abnormal-low {
+    border-color: #3498db;
+    background: rgba(52, 152, 219, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.form-input.abnormal-high {
+    border-color: #e74c3c;
+    background: rgba(231, 76, 60, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.form-input.normal-range {
+    border-color: #27ae60;
+    background: rgba(39, 174, 96, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+/* Enhanced Range Indicator */
+.range-indicator {
+    display: inline-block;
+    padding: 0.4rem 1rem;
+    border-radius: 25px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-left: 0.5rem;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.range-normal {
+    background: rgba(39, 174, 96, 0.15);
+    color: #27ae60;
+    border: 1px solid rgba(39, 174, 96, 0.3);
+}
+
+.range-low {
+    background: rgba(52, 152, 219, 0.15);
+    color: #3498db;
+    border: 1px solid rgba(52, 152, 219, 0.3);
+}
+
+.range-high {
+    background: rgba(231, 76, 60, 0.15);
+    color: #e74c3c;
+    border: 1px solid rgba(231, 76, 60, 0.3);
+}
+
+/* Enhanced COVID Test Result Styling */
+.covid-result {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.covid-positive-icon::before {
+    content: '🦠';
+    font-size: 2rem;
+    filter: drop-shadow(0 2px 4px rgba(190, 24, 93, 0.2));
+}
+
+.covid-negative-icon::before {
+    content: '✅';
+    font-size: 2rem;
+    filter: drop-shadow(0 2px 4px rgba(190, 24, 93, 0.2));
+}
+
+/* Enhanced Probability Display */
+.probability-display {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 182, 193, 0.3);
+    box-shadow: 0 4px 20px rgba(190, 24, 93, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.probability-item {
+    text-align: center;
+    padding: 0.8rem;
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.probability-positive {
+    background: rgba(231, 76, 60, 0.15);
+    border: 1px solid rgba(231, 76, 60, 0.3);
+    color: #c0392b;
+    box-shadow: 0 2px 8px rgba(231, 76, 60, 0.1);
+}
+
+.probability-negative {
+    background: rgba(39, 174, 96, 0.15);
+    border: 1px solid rgba(39, 174, 96, 0.3);
+    color: #27ae60;
+    box-shadow: 0 2px 8px rgba(39, 174, 96, 0.1);
+}
+
+.probability-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: block;
+}
+
+.probability-label {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+/* Enhanced Form Grid */
+.covid-form .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+    padding: 0;
+}
+
+.covid-form .form-group {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 1.25rem;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 182, 193, 0.3);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(190, 24, 93, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.covid-form .form-group:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(190, 24, 93, 0.4);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow: 0 8px 30px rgba(190, 24, 93, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Enhanced Animation */
+@keyframes covidFormSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(40px) scale(0.95);
+        backdrop-filter: blur(0px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        backdrop-filter: blur(20px);
+    }
+}
+
+.covid-form {
+    animation: covidFormSlideIn 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+/* COVID “Fill Demo Data” Button */
+.demo-btn {
+  position: fixed !important;
+  top: 50px !important;
+  right: 35px !important;
+  background: rgba(190, 24, 93, 0.9) !important;
+  backdrop-filter: blur(15px) !important;
+  -webkit-backdrop-filter: blur(15px) !important;
+  border: 1px solid rgba(190, 24, 93, 0.7) !important;
+  border-radius: 20px !important;
+  color: white !important;
+  padding: 0.6rem 1.2rem !important;
+  font-weight: 600 !important;
+  font-size: 0.85rem !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 15px rgba(190, 24, 93, 0.4) !important;
+  z-index: 1001 !important;
+  white-space: nowrap !important;
+}
+
+.demo-btn:hover {
+  background: rgba(190, 24, 93, 1) !important;
+  box-shadow: 0 6px 20px rgba(190, 24, 93, 0.5) !important;
+  transform: translateY(-1px) !important;
+}
+
+
+/* Enhanced Responsive Adjustments */
+@media (max-width: 768px) {
+    .covid-form {
+        margin: 1rem;
+        padding: 1.5rem;
+        max-width: calc(100vw - 20px);
+    }
+
+    .form-section {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+    }
+
+    .covid-form .form-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .covid-form .form-group {
+        padding: 1.25rem;
+    }
+
+    .probability-display {
+        grid-template-columns: 1fr;
+        gap: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .form-info {
+        padding: 1rem;
+    }
+
+    .form-section {
+        padding: 1rem;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .section-title::before {
+        margin-right: 0.5rem;
+        margin-bottom: 0.3rem;
+    }
+
+    .input-hint {
+        font-size: 0.8rem;
+    }
+
+    .covid-form .form-grid {
+        gap: 0.75rem;
+    }
+
+    .covid-form .form-group {
+        padding: 1rem;
+    }
+}

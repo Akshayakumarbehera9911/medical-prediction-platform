@@ -1,0 +1,288 @@
+{% extends "base.html" %}
+
+{% block title %}MediPredict - AI-Powered Medical Predictions{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero" >
+  <div class="hero-container">
+    <div class="hero-content">
+      <h1 class="hero-title">Your Health, <span>Smarter</span></h1>
+      <p class="hero-subtitle">
+        Predict Risks with AI<br />
+        Leverage advanced AI to analyze your health data and predict disease risks for early intervention and peace of mind.
+      </p>
+      <a href="#services" class="hero-btn">Try a Risk Assessment</a>
+    </div>
+    <div class="hero-graphic">
+      <!-- Optional: Add a hero image or illustration here -->
+    </div>
+  </div>
+</section>
+
+
+<!-- Services Section -->
+<section class="services" id="services" class="services">
+    <div class="services-container">
+        <div class="section-header">
+            <h2 class="section-title">Our Medical Prediction Services</h2>
+            <p class="section-subtitle">
+                Choose from our comprehensive suite of AI-powered health assessment tools
+            </p>
+        </div>
+        
+        <div class="services-grid">
+            <!-- Lung Cancer Service -->
+            <div class="service-card lung-cancer">
+                <div class="service-icon">
+                    <span class="icon-emoji">🫁</span>
+                </div>
+                <div class="service-content">
+                    <h3 class="service-title">Lung Cancer Risk Prediction</h3>
+                    <p class="service-description">
+                        Assess your lung cancer risk based on lifestyle factors, symptoms, and demographic information. 
+                        Our model analyzes 15+ risk factors to provide accurate predictions.
+                    </p>
+                    <ul class="service-features">
+                        <li>✓ Lifestyle factor analysis</li>
+                        <li>✓ Symptom evaluation</li>
+                        <li>✓ Risk probability scoring</li>
+                    </ul>
+                </div>
+                <div class="service-action">
+                    <a href="/lung-cancer" class="service-btn lung-cancer-btn">
+                        🔬 Start Assessment
+                    </a>
+                </div>
+            </div>
+
+            <!-- COVID-19 Service -->
+            <div class="service-card covid">
+                <div class="service-icon">
+                    <span class="icon-emoji">🦠</span>
+                </div>
+                <div class="service-content">
+                    <h3 class="service-title">COVID-19 Assessment</h3>
+                    <p class="service-description">
+                        Comprehensive blood work analysis for COVID-19 detection. Our advanced model processes 
+                        21 different blood parameters to determine infection probability.
+                    </p>
+                    <ul class="service-features">
+                        <li>✓ Complete blood count analysis</li>
+                        <li>✓ Multiple biomarker evaluation</li>
+                        <li>✓ Additional condition screening</li>
+                    </ul>
+                </div>
+                <div class="service-action">
+                    <a href="/covid" class="service-btn covid-btn">
+                        🧪 Analyze Results
+                    </a>
+                </div>
+            </div>
+
+            <!-- Cardiovascular Service -->
+            <div class="service-card cardiovascular">
+                <div class="service-icon">
+                    <span class="icon-emoji">❤️</span>
+                </div>
+                <div class="service-content">
+                    <h3 class="service-title">Heart Disease Prediction</h3>
+                    <p class="service-description">
+                        Evaluate your cardiovascular disease risk using clinical parameters including blood pressure, 
+                        cholesterol levels, ECG results, and exercise capacity.
+                    </p>
+                    <ul class="service-features">
+                        <li>✓ Clinical parameter analysis</li>
+                        <li>✓ ECG interpretation</li>
+                        <li>✓ Risk stratification</li>
+                    </ul>
+                </div>
+                <div class="service-action">
+                    <a href="/cardiovascular" class="service-btn cardiovascular-btn">
+                        💓 Check Heart Health
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="features">
+    <div class="features-container">
+        <div class="section-header">
+            <h2 class="section-title">Why Choose MediPredict?</h2>
+            <p class="section-subtitle">Experience the future of healthcare with our advanced AI-powered diagnostic tools designed to provide accurate, instant, and secure health predictions.</p>
+        </div>
+        
+        <div class="features-grid">
+            <!-- AI-Powered Feature -->
+            <div class="feature-item">
+                <div class="feature-icon-container">
+                    <svg class="feature-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="2" width="20" height="20" rx="2" ry="2"/>
+                        <path d="M12 8v8m-4-4h8"/>
+                        <circle cx="12" cy="6" r="2"/>
+                        <circle cx="6" cy="18" r="2"/>
+                        <circle cx="18" cy="18" r="2"/>
+                        <path d="M12 8L6 16m6-8l6 8"/>
+                    </svg>
+                </div>
+                <h3>AI-Powered</h3>
+                <p>State-of-the-art machine learning algorithms trained on extensive medical datasets</p>
+            </div>
+
+            <!-- Instant Results Feature -->
+            <div class="feature-item">
+                <div class="feature-icon-container">
+                    <svg class="feature-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12,6 12,12 16,14"/>
+                        <path d="M8 2l4 4 4-4"/>
+                        <path d="M2 8l4 4-4 4"/>
+                        <path d="M22 8l-4 4 4 4"/>
+                        <path d="M8 22l4-4 4 4"/>
+                    </svg>
+                </div>
+                <h3>Instant Results</h3>
+                <p>Get immediate predictions and risk assessments within seconds</p>
+            </div>
+
+            <!-- Secure & Private Feature -->
+            <div class="feature-item">
+                <div class="feature-icon-container">
+                    <svg class="feature-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        <circle cx="12" cy="16" r="1"/>
+                        <path d="M12 16v2"/>
+                        <path d="M8 16h8"/>
+                    </svg>
+                </div>
+                <h3>Secure & Private</h3>
+                <p>Your health data is processed securely and never stored on our servers</p>
+            </div>
+
+            <!-- Easy to Use Feature -->
+            <div class="feature-item">
+                <div class="feature-icon-container">
+                    <svg class="feature-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                        <path d="M8 21l4-4 4 4"/>
+                        <circle cx="12" cy="10" r="2"/>
+                        <path d="M9 10h6"/>
+                        <path d="M5 7h14"/>
+                    </svg>
+                </div>
+                <h3>Easy to Use</h3>
+                <p>Intuitive interface designed for both healthcare professionals and patients</p>
+            </div>
+
+            <!-- High Accuracy Feature -->
+            <div class="feature-item">
+                <div class="feature-icon-container">
+                    <svg class="feature-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 6v6l4 2"/>
+                        <circle cx="12" cy="12" r="1"/>
+                        <path d="M16 8l2-2"/>
+                        <path d="M8 16l-2 2"/>
+                        <path d="M16 16l2 2"/>
+                        <path d="M8 8l-2-2"/>
+                    </svg>
+                </div>
+                <h3>High Accuracy</h3>
+                <p>Clinically validated algorithms with over 95% accuracy in medical predictions</p>
+            </div>
+
+            <!-- Detailed Analysis Feature -->
+            <div class="feature-item">
+                <div class="feature-icon-container">
+                    <svg class="feature-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <path d="M9 9h6v6H9z"/>
+                        <path d="M5 7h14"/>
+                        <path d="M7 5v14"/>
+                        <path d="M17 5v14"/>
+                        <path d="M5 17h14"/>
+                        <circle cx="12" cy="12" r="1"/>
+                    </svg>
+                </div>
+                <h3>Detailed Analysis</h3>
+                <p>Comprehensive reports with risk factors, recommendations, and next steps</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta">
+    <div class="cta-container">
+        <div class="cta-content">
+            <h2 class="cta-title">Ready to Get Started?</h2>
+            <p class="cta-subtitle">
+                Take control of your health with our AI-powered prediction tools. 
+                Get personalized insights in minutes.
+            </p>
+            <div class="cta-buttons">
+                <a href="#services" class="cta-btn primary">Start Your Assessment</a>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="contact" id="contact">
+  <div class="contact-container">
+    <div class="contact-card">
+      <h2 class="contact-title">Found Something?</h2>
+      <p class="contact-subtitle">
+        Get in touch with us regarding your health concerns, technical support, or general inquiries. We're here to help make your healthcare journey smarter.
+      </p>
+      <div class="contact-details">
+        <div class="contact-item">
+          <span class="contact-icon">
+            <!-- email icon svg -->
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+          </span>
+          <span class="contact-text">Email: support@medipredict.com</span>
+        </div>
+        <div class="contact-item">
+          <span class="contact-icon">
+            <!-- phone icon svg -->
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7"/>
+            </svg>
+          </span>
+          <span class="contact-text">Phone: +1 (555) 123-4567</span>
+        </div>
+        <div class="contact-item">
+          <span class="contact-icon">
+            <!-- location icon svg -->
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+          </span>
+          <span class="contact-text">Address: Medical AI Research Center, Health Sciences Building</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Disclaimer Section -->
+<section class="disclaimer" id="disclaimer" class="disclaimer">
+    <div class="disclaimer-container">
+        <div class="disclaimer-content">
+            <h3>⚠️ Important Medical Disclaimer</h3>
+            <p>
+                <strong>This platform is for educational and informational purposes only.</strong> 
+                The predictions and assessments provided by our AI models should not be used as a substitute for professional medical advice, diagnosis, or treatment. 
+                Always seek the advice of qualified healthcare providers with any questions regarding medical conditions. 
+                Never disregard professional medical advice or delay seeking it based on information from this platform.
+            </p>
+        </div>
+    </div>
+</section>
+{% endblock %}

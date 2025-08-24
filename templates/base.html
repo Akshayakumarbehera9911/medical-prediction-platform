@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Medical Prediction Platform{% endblock %}</title>
+
+    <!-- Main CSS (shared styles) -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+
+    <!-- Page-specific CSS -->
+    {% block styles %}{% endblock %}
+
+    <!-- Favicon -->
+    <link rel="icon" href="{{ url_for('static', filename='images/logo.png') }}" type="image/png">
+</head>
+
+<body class="{% if request.endpoint == 'index' %}homepage{% endif %}">
+    <!-- Navigation Header -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="/">
+                    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="logo-img">
+                    <span class="logo-text">MediPredict</span>
+                </a>
+            </div>
+
+            <div class="nav-menu" id="nav-menu">
+                <a href="/" class="nav-link"> Home</a>
+                <a href="/lung-cancer" class="nav-link"> Lung Cancer</a>
+                <a href="/covid" class="nav-link">COVID-19</a>
+                <a href="/cardiovascular" class="nav-link">Heart Disease</a>
+            </div>
+
+            <div class="nav-toggle" id="nav-toggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>MediPredict</h3>
+                    <p>AI-powered medical prediction platform - College Project</p>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Features</h4>
+                    <ul>
+                        <li><a href="/lung-cancer">Lung Cancer Risk</a></li>
+                        <li><a href="/covid">COVID-19 Assessment</a></li>
+                        <li><a href="/cardiovascular">Heart Disease Risk</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Academic Disclaimer</h4>
+                    <p><strong>Note:</strong> This is a college project for educational purposes only. Not for actual
+                        medical use.</p>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>© 2025 MediPredict - Student Project. Made by [Your Name]</p>
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- Main JavaScript (shared utilities) -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+    <!-- Page-specific JavaScript -->
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

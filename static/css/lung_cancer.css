@@ -1,0 +1,523 @@
+/* ========== LUNG CANCER SPECIFIC STYLES ========== */
+
+/* Updated Lung Cancer Theme - Matching Home Page Pink Theme */
+:root {
+    --lung-primary: #be185d; /* Match your main pink */
+    --lung-secondary: #a3185a; /* Darker pink for depth */
+    --lung-gradient: linear-gradient(135deg, #fff0f5, #fdf2f8); /* Match navbar gradient */
+    --lung-accent: linear-gradient(135deg, #be185d, #e91e63); /* Pink accent gradient */
+    --lung-light: rgba(190, 24, 93, 0.1); /* Light pink background */
+    --lung-border: rgba(255, 182, 193, 0.3); /* Soft pink borders */
+    --lung-shadow: rgba(236, 72, 153, 0.1); /* Soft pink shadow */
+    --text-primary: #2d3748; /* Match home page text */
+    --text-secondary: #4a5568; /* Secondary text color */
+    --white-soft: rgba(255, 255, 255, 0.95); /* Soft white background */
+}
+
+/* Override form page background for lung cancer theme */
+/* Enhanced smooth pinkish-white background */
+.form-page {
+    background: linear-gradient(135deg, #fef7f0 0%, #fdf2f8 35%, #fff0f5 65%, #fef7f0 100%);
+    position: relative;
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+.form-page::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="lung-pattern" x="0" y="0" width="25" height="25" patternUnits="userSpaceOnUse"><circle cx="12.5" cy="12.5" r="0.8" fill="rgba(190,24,93,0.05)"/></pattern></defs><rect width="100%" height="100%" fill="url(%23lung-pattern)"/></svg>');
+    pointer-events: none;
+    opacity: 0.3;
+}
+
+/* Enhanced Glass-like Form Container */
+.form-container {
+    position: relative;
+    z-index: 1;
+    border: 1px solid rgba(255, 182, 193, 0.4);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.25); /* More glass-like transparency */
+    backdrop-filter: blur(20px); /* Glass blur effect */
+    -webkit-backdrop-filter: blur(20px);
+    padding: 2.5rem 3rem;
+    box-shadow: 0 12px 40px rgba(190, 24, 93, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3); /* Glass highlight */
+    max-width: 800px;
+    margin: 2rem auto;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    display: flow-root;
+}
+
+.form-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background: linear-gradient(135deg, rgba(190, 24, 93, 0.8), rgba(233, 30, 99, 0.8));
+    border-radius: 20px 20px 0 0;
+}
+
+.form-container:hover {
+    background: rgba(255, 255, 255, 0.35); /* Lighter on hover */
+    box-shadow: 0 16px 50px rgba(190, 24, 93, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+}
+
+/* Glass-like Form Inputs */
+.form-input {
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 182, 193, 0.4);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    width: 100%; /* Full width within container */
+    max-width: 300px; /* Limit maximum width */
+    font-size: 1rem;
+}
+
+.form-input:focus {
+    background: rgba(255, 255, 255, 0.4);
+    border-color: rgba(190, 24, 93, 0.6);
+    box-shadow: 0 0 0 3px rgba(190, 24, 93, 0.15),
+                inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    color: var(--lung-primary);
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    display: block;
+    font-size: 1rem;
+}
+
+/* Style for Age field specifically */
+#age {
+    max-width: 200px; /* Even smaller for age field */
+}
+
+/* Radio group styling */
+.radio-group {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+/* Form subtitle styling */
+.form-subtitle {
+    color: var(--text-secondary);
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+    font-weight: 400;
+}
+
+/* ADD THIS NEW RULE TO ENSURE GRID WORKS */
+.form-grid .form-input {
+    width: 100%;
+    max-width: none; /* Remove max-width restriction inside grid */
+}
+
+/* Fix for dynamically created section titles */
+.section-title {
+    margin: 0 0 1rem 0;
+    padding: 0;
+    border-bottom: none !important; /* Remove any unwanted borders */
+}
+
+/* Style the h4 elements created by JavaScript */
+.section-title h4 {
+    margin: 0;
+    padding: 0;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--lung-primary);
+    border-bottom: none !important; /* Remove any default h4 borders */
+}
+
+/* FIX SECTION TITLES BREAKING GRID LAYOUT */
+/* FIX SECTION TITLES BREAKING GRID LAYOUT */
+.form-grid .section-title {
+    grid-column: 1 / -1;  /* Span full width of grid */
+    margin: 2rem 0 1rem 0;
+    /* Remove order: -1; - This was causing all titles to move to top */
+}
+
+.form-grid .section-title:first-child {
+    margin-top: 0;        /* Remove top margin from first title */
+}
+
+
+/* Glass-like Radio Buttons */
+.radio-option {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 182, 193, 0.4);
+    border-radius: 12px;
+    padding: 0.75rem 1.25rem;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.radio-option:hover {
+    background: rgba(255, 255, 255, 0.35);
+    border-color: rgba(190, 24, 93, 0.5);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+}
+
+.radio-option:has(input[type="radio"]:checked) {
+    background: rgba(190, 24, 93, 0.2);
+    border-color: rgba(190, 24, 93, 0.6);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    box-shadow: 0 4px 15px rgba(190, 24, 93, 0.2),
+                inset 0 1px 2px rgba(255, 255, 255, 0.3);
+}
+
+.radio-option input[type="radio"]:checked + span {
+    color: var(--lung-primary);
+    font-weight: 600;
+}
+
+/* Glass-like Predict Button */
+.predict-btn {
+    background: rgba(190, 24, 93, 0.8);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(190, 24, 93, 0.6);
+    border-radius: 25px;
+    color: white;
+    padding: 1rem 2.5rem;
+    font-weight: 700;
+    box-shadow: 0 8px 25px rgba(190, 24, 93, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.predict-btn:hover {
+    background: rgba(190, 24, 93, 0.9);
+    box-shadow: 0 12px 35px rgba(190, 24, 93, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    transform: translateY(-3px);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+/* Glass-like Back Button */
+.back-btn {
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 182, 193, 0.4);
+    border-radius: 12px;
+    color: var(--lung-primary);
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.back-btn:hover {
+    background: rgba(190, 24, 93, 0.15);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    transform: translateX(-5px);
+    box-shadow: 0 4px 15px rgba(190, 24, 93, 0.15);
+}
+
+/* Glass-like Result Containers */
+.result-positive {
+    background: rgba(190, 24, 93, 0.15);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(190, 24, 93, 0.4);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 25px rgba(190, 24, 93, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.result-negative {
+    background: rgba(46, 204, 113, 0.15);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(46, 204, 113, 0.4);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 25px rgba(46, 204, 113, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Glass-like Form Title */
+.form-title {
+    background: linear-gradient(135deg, var(--lung-primary), #e91e63);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+    margin-bottom: 0.5rem;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+/* Enhanced Form Grid Layout */
+/* Perfect Form Grid Layout */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Fixed 2 columns */
+    gap: 1rem 1.5rem; /* Vertical gap, Horizontal gap */
+    margin-top: 1.5rem;
+    padding: 0;
+}
+
+/* Make sure all grid items are equal height */
+.form-grid .form-group {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 1.25rem;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 182, 193, 0.3);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(190, 24, 93, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    min-height: 120px; /* Ensures consistent height */
+    display: flex;
+    flex-direction: column;
+}
+
+.form-grid .form-group:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(190, 24, 93, 0.4);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow: 0 8px 30px rgba(190, 24, 93, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Enhanced form disclaimer */
+.form-disclaimer {
+    margin-top: 2rem;
+    padding: 1.25rem;
+    background: rgba(255, 193, 7, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-radius: 16px;
+    font-size: 0.9rem;
+    color: #856404;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(255, 193, 7, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Enhanced section styling */
+.form-section {
+    margin-bottom: 2rem;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 182, 193, 0.25);
+    box-shadow: 0 6px 25px rgba(190, 24, 93, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Enhanced input validation styling */
+.form-input.valid {
+    border-color: #2ecc71;
+    background: rgba(46, 204, 113, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1);
+}
+
+.form-input.invalid {
+    border-color: var(--lung-primary);
+    background: rgba(190, 24, 93, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 0 0 3px rgba(190, 24, 93, 0.1);
+}
+
+/* Enhanced lung cancer icons */
+.lung-icon {
+    display: inline-block;
+    font-size: 1.3em;
+    margin-right: 0.5rem;
+    opacity: 0.8;
+    filter: drop-shadow(0 2px 4px rgba(190, 24, 93, 0.2));
+}
+
+/* Enhanced progress bar */
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(135deg, var(--lung-primary), #e91e63);
+    width: 100%;
+    border-radius: 12px;
+    transition: width 0.4s ease;
+    box-shadow: 0 2px 8px rgba(190, 24, 93, 0.3);
+}
+
+/* Enhanced tooltip styling for input hints */
+.input-hint {
+    position: relative;
+    font-size: 0.85rem;
+    color: rgba(190, 24, 93, 0.8);
+    font-weight: 500;
+    margin-top: 0.5rem;
+}
+
+.input-hint::before {
+    content: 'ℹ️';
+    font-size: 0.9em;
+    margin-right: 0.4rem;
+    opacity: 0.8;
+}
+
+/* Enhanced form labels within grid */
+.form-grid .form-label {
+    color: var(--lung-primary);
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    display: block;
+    font-size: 1rem;
+}
+
+/* Enhanced animation for form appearance */
+@keyframes lungFormSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(40px) scale(0.95);
+        backdrop-filter: blur(0px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        backdrop-filter: blur(20px);
+    }
+}
+
+.form-container {
+    animation: lungFormSlideIn 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced risk level indicators */
+.risk-indicator {
+    display: inline-block;
+    padding: 0.4rem 1rem;
+    border-radius: 25px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-left: 0.5rem;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.risk-high {
+    background: rgba(190, 24, 93, 0.15);
+    color: var(--lung-primary);
+    border: 1px solid rgba(190, 24, 93, 0.3);
+}
+
+.risk-low {
+    background: rgba(46, 204, 113, 0.15);
+    color: #27ae60;
+    border: 1px solid rgba(46, 204, 113, 0.3);
+}
+
+/* Enhanced responsive adjustments - UPDATED */
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr; /* Single column on tablets */
+        gap: 1rem;
+    }
+    
+    .form-container {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+    
+    .form-section {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .section-title {
+        font-size: 1.2rem;
+    }
+    
+    .form-grid .form-group {
+        padding: 1.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .form-grid {
+        gap: 0.75rem; /* Even smaller gap on mobile */
+        grid-template-columns: 1fr;
+    }
+    
+    .form-title {
+        font-size: 1.7rem;
+    }
+    
+    .form-subtitle {
+        font-size: 1rem;
+    }
+    
+    .predict-btn {
+        padding: 1rem 1.5rem;
+        font-size: 0.95rem;
+    }
+    
+    .form-disclaimer {
+        padding: 1rem;
+        font-size: 0.85rem;
+    }
+    
+    .form-grid .form-group {
+        padding: 1rem;
+    }
+    
+    .form-section {
+        padding: 1.25rem;
+    }
+}

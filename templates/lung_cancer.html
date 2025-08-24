@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Lung Cancer Risk Prediction - MediPredict{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lung_cancer.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <div class="form-container">
+        <a href="/" class="back-btn">← Back to Home</a>
+        
+        <h1 class="form-title">🫁 Lung Cancer Risk Prediction</h1>
+        <p class="form-subtitle">Advanced AI-powered health assessment tool</p>
+        
+        <form id="lungCancerForm">
+            <div class="form-group">
+                <label class="form-label">Gender:</label>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="gender" value="1" required>
+                        <span>👨 Male</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="gender" value="0" required>
+                        <span>👩 Female</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="age" class="form-label">Age:</label>
+                <input type="number" id="age" class="form-input" min="1" max="120" required>
+                <div class="input-hint">Enter your age in years (1-120)</div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="smoking" class="form-label">Smoking:</label>
+                    <input type="number" id="smoking" class="form-input" min="0" max="1" required>
+                    <div class="input-hint">1 = Yes, 0 = No</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="yellow_fingers" class="form-label">Yellow Fingers:</label>
+                    <input type="number" id="yellow_fingers" class="form-input" min="0" max="1" required>
+                    <div class="input-hint">1 = Yes, 0 = No</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="anxiety" class="form-label">Anxiety:</label>
+                    <input type="number" id="anxiety" class="form-input" min="0" max="1" required>
+                    <div class="input-hint">1 = Yes, 0 = No</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="peer_pressure" class="form-label">Peer Pressure:</label>
+                    <input type="number" id="peer_pressure" class="form-input" min="0" max="1" required>
+                    <div class="input-hint">1 = Yes, 0 = No</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="chronic_disease" class="form-label">Chronic Disease:</label>
+                    <input type="number" id="chronic_disease" class="form-input" min="0" max="1" required>
+                    <div class="input-hint">1 = Yes, 0 = No</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="fatigue" class="form-label">Fatigue:</label>
+                    <input type="number" id="fatigue" class="form-input" min="0" max="1" required>
+                    <div class="input-hint">1 = Yes, 0 = No</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="allergy" class="form-label">Allergy:</label>
+                    <input type="number" id="allergy" class="form-input" min="0" max="1" required>
+                    <div class="input-hint">1 = Yes, 0 = No</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="wheezing" class="form-label">Wheezing:</label>
+                    <input type="number" id="wheezing" class="form-input" min="0" max="1" required>
+                    <div class="input-hint">1 = Yes, 0 = No</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="alcohol_consuming" class="form-label">Alcohol Consuming:</label>
+                    <input type="number" id="alcohol_consuming" class="form-input" min="0" max="1" required>
+                    <div class="input-hint">1 = Yes, 0 = No</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="coughing" class="form-label">Coughing:</label>
+                    <input type="number" id="coughing" class="form-input" min="0" max="1" required>
+                    <div class="input-hint">1 = Yes, 0 = No</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="shortness_of_breath" class="form-label">Shortness of Breath:</label>
+                    <input type="number" id="shortness_of_breath" class="form-input" min="0" max="1" required>
+                    <div class="input-hint">1 = Yes, 0 = No</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="swallowing_difficulty" class="form-label">Swallowing Difficulty:</label>
+                    <input type="number" id="swallowing_difficulty" class="form-input" min="0" max="1" required>
+                    <div class="input-hint">1 = Yes, 0 = No</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="chest_pain" class="form-label">Chest Pain:</label>
+                    <input type="number" id="chest_pain" class="form-input" min="0" max="1" required>
+                    <div class="input-hint">1 = Yes, 0 = No</div>
+                </div>
+            </div>
+
+            <button type="submit" class="predict-btn">
+                🔬 Analyze Risk Factors
+            </button>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Analyzing your health data...</p>
+        </div>
+
+        <div class="result-container" id="result-container">
+            <div class="result-text" id="result-text"></div>
+            <div class="result-description" id="result-description"></div>
+        </div>
+
+        <div class="form-disclaimer">
+            <p><strong>⚠️ Medical Disclaimer:</strong> This prediction tool is for educational purposes only and should not replace professional medical advice. Please consult with healthcare professionals for accurate diagnosis and treatment.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/lung_cancer.js') }}"></script>
+{% endblock %}

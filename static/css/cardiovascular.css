@@ -1,0 +1,748 @@
+/* ========== CARDIOVASCULAR DISEASE PREDICTION STYLES ========== */
+
+/* Theme variables */
+:root {
+--cv-primary: #be185d;
+--cv-secondary: #a3185a;
+--cv-gradient: linear-gradient(135deg, #fff0f5, #fdf2f8);
+--cv-accent: linear-gradient(135deg, #be185d, #e91e63);
+--cv-light: rgba(190, 24, 93, 0.1);
+--cv-border: rgba(255, 182, 193, 0.3);
+--cv-shadow: rgba(236, 72, 153, 0.1);
+--text-primary: #2d3748;
+--text-secondary: #4a5568;
+--white-soft: rgba(255, 255, 255, 0.95);
+}
+
+/* Page background */
+.form-page {
+background: linear-gradient(135deg, #fef7f0 0%, #fef2f8 35%, #fff0f5 65%, #fef7f0 100%);
+position: relative;
+min-height: 100vh;
+padding: 2rem 0;
+}
+
+.form-page::before {
+content: '';
+position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"><defs><pattern id="cv-pattern" width="25" height="25" patternUnits="userSpaceOnUse"><circle cx="12.5" cy="12.5" r="0.8" fill="rgba(190,24,93,0.05)"/></pattern></defs><rect width="100%" height="100%" fill="url(%23cv-pattern)"/></svg>');
+pointer-events: none; opacity: 0.3;
+}
+
+/* MAIN CONTAINER WIDTH FIX - Match lung cancer form */
+.form-container {
+max-width: 800px !important; /* Increased from smaller width */
+width: 95% !important;
+margin: 0 auto !important;
+padding: 0 2rem !important;
+}
+
+.cardio-form {
+max-width: 800px !important; /* Ensure cardio-specific doesn't override */
+width: 100% !important;
+}
+
+.prediction-container {
+max-width: 1200px !important; /* Make prediction container wider */
+width: 100% !important;
+margin: 0 auto !important;
+padding: 0 !important;
+background: rgba(255, 255, 255, 0.1);
+backdrop-filter: blur(15px);
+-webkit-backdrop-filter: blur(15px);
+border-radius: 25px;
+border: 1px solid var(--cv-border);
+box-shadow: 0 10px 40px rgba(190, 24, 93, 0.1);
+overflow: hidden;
+}
+
+/* Glass-like hero - REMOVED */
+.hero-cardiovascular {
+display: none;
+}
+
+/* IMPROVED GRID LAYOUT - Match lung cancer spacing */
+.form-grid {
+display: grid !important;
+grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)) !important; /* Wider minimum */
+gap: 2rem !important; /* More generous spacing */
+margin-bottom: 1.5rem !important;
+}
+
+/* Make all form "boxes" equal width */
+.prediction-container .form-row {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)) !important; /* Match form-grid */
+  gap: 2rem !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.prediction-container .form-row > .form-group {
+  width: 100% !important;
+  box-sizing: border-box;
+}
+
+/* On mobile, stack full-width */
+@media (max-width: 768px) {
+  .prediction-container .form-row > .form-group,
+  .form-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+}
+
+/* Ensure each "card" or .form-section also respects same width */
+.prediction-container .form-section {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Input fields inside form-groups fill their container */
+.form-group input,
+.form-group select {
+  width: 100% !important;
+  box-sizing: border-box;
+}
+
+/* Form header - NEW PINK GLASS STYLING */
+.form-header {
+background: rgba(255,255,255,0.15);
+backdrop-filter: blur(15px);
+-webkit-backdrop-filter: blur(15px);
+border-bottom: 1px solid var(--cv-border);
+color: var(--text-primary);
+padding: 30px 40px 20px 40px; /* Increased horizontal padding */
+text-align: center;
+position: relative;
+}
+
+/* Fix title styling */
+.form-header h1,
+.form-header h2 {
+background: linear-gradient(135deg, var(--cv-primary), #e91e63);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+font-size: 2.2rem;
+font-weight: 700;
+margin: 0 0 0.8rem 0;
+line-height: 1.2;
+}
+
+/* Fix subtitle */
+.form-header p,
+.form-description {
+color: var(--text-secondary);
+font-size: 1rem;
+font-weight: 400;
+margin-bottom: 0;
+line-height: 1.4;
+}
+
+/* Instructions styling */
+.instructions,
+.form-instructions {
+background: rgba(190, 24, 93, 0.1);
+backdrop-filter: blur(12px);
+-webkit-backdrop-filter: blur(12px);
+border: 1px solid var(--cv-border);
+border-radius: 16px;
+padding: 1.2rem 2rem; /* Increased horizontal padding */
+margin: 1.5rem 40px 2rem 40px; /* Increased horizontal margin */
+color: var(--cv-primary);
+box-shadow: 0 4px 20px rgba(190, 24, 93, 0.08),
+inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.instructions strong,
+.form-instructions strong {
+color: var(--cv-secondary);
+font-weight: 600;
+}
+
+/* Fix blue selection and improve headings */
+::selection {
+background: rgba(190, 24, 93, 0.2) !important;
+color: var(--cv-primary) !important;
+}
+
+::-moz-selection {
+background: rgba(190, 24, 93, 0.2) !important;
+color: var(--cv-primary) !important;
+}
+
+/* Fix select dropdown styling */
+.form-group select {
+background: rgba(255, 255, 255, 0.3) !important;
+border: 1px solid var(--cv-border) !important;
+color: var(--text-primary) !important;
+}
+
+.form-group select:focus {
+border-color: var(--cv-primary) !important;
+box-shadow: 0 0 0 3px var(--cv-light) !important;
+}
+
+.form-group select option {
+background: rgba(255, 255, 255, 0.95) !important;
+color: var(--text-primary) !important;
+}
+
+.form-group select option:checked {
+background: rgba(190, 24, 93, 0.2) !important;
+color: var(--cv-primary) !important;
+}
+
+/* Style form field labels (Sex, Chest Pain Type, etc.) - FIXED */
+.form-group > label:first-child,
+.form-row label:first-child {
+background: rgba(190, 24, 93, 0.05) !important;
+border: 1px solid rgba(190, 24, 93, 0.15) !important;
+border-radius: 8px !important;
+padding: 0.4rem 0.8rem !important;
+margin-bottom: 0.8rem !important;
+color: var(--cv-primary) !important;
+font-weight: 600 !important;
+font-size: 0.95rem !important;
+display: inline-block !important;
+backdrop-filter: blur(8px) !important;
+-webkit-backdrop-filter: blur(8px) !important;
+}
+
+/* Alternative styling for field labels - more prominent */
+.form-group > label:first-child {
+background: linear-gradient(135deg, rgba(190, 24, 93, 0.1), rgba(190, 24, 93, 0.05)) !important;
+box-shadow: 0 2px 8px rgba(190, 24, 93, 0.1) !important;
+}
+
+/* Remove any default blue focus outline */
+* {
+outline-color: var(--cv-primary) !important;
+}
+
+/* Fix any remaining blue elements */
+input:focus,
+select:focus,
+textarea:focus {
+outline: none !important;
+border-color: var(--cv-primary) !important;
+box-shadow: 0 0 0 3px var(--cv-light) !important;
+}
+
+/* Fix Radio Button Styling - CLEAN VERSION */
+.form-group input[type="radio"] {
+position: absolute;
+opacity: 0;
+pointer-events: none;
+}
+
+.form-group input[type="radio"] + label {
+background: rgba(255, 255, 255, 0.3);
+backdrop-filter: blur(10px);
+-webkit-backdrop-filter: blur(10px);
+border: 1px solid rgba(255, 182, 193, 0.4);
+border-radius: 12px;
+padding: 0.75rem 1rem;
+transition: all 0.3s ease;
+box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+cursor: pointer;
+display: flex;
+align-items: center;
+gap: 0.5rem;
+font-weight: 500;
+color: var(--text-primary);
+margin-bottom: 0.5rem;
+min-height: 48px;
+}
+
+.form-group input[type="radio"] + label:hover {
+background: rgba(255, 255, 255, 0.35);
+border-color: rgba(190, 24, 93, 0.5);
+backdrop-filter: blur(15px);
+-webkit-backdrop-filter: blur(15px);
+transform: translateY(-1px);
+}
+
+.form-group input[type="radio"]:checked + label {
+background: rgba(190, 24, 93, 0.2) !important;
+border-color: rgba(190, 24, 93, 0.6) !important;
+backdrop-filter: blur(15px) !important;
+-webkit-backdrop-filter: blur(15px) !important;
+box-shadow: 0 4px 15px rgba(190, 24, 93, 0.2),
+inset 0 1px 2px rgba(255, 255, 255, 0.3) !important;
+color: var(--cv-primary) !important;
+font-weight: 600 !important;
+}
+
+.form-group input[type="radio"] + label::before {
+content: '';
+width: 16px;
+height: 16px;
+border: 2px solid rgba(190, 24, 93, 0.4);
+border-radius: 50%;
+background: rgba(255, 255, 255, 0.7);
+transition: all 0.3s ease;
+flex-shrink: 0;
+}
+
+.form-group input[type="radio"]:checked + label::before {
+background: var(--cv-primary);
+border-color: var(--cv-primary);
+box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 1);
+}
+
+/* Fill Demo Data Button */
+.demo-btn,
+.fill-demo-btn,
+button[onclick*="demo"],
+button[onclick*="Demo"] {
+position: absolute !important;
+top: 50px !important;
+right: 35px !important;
+background: rgba(190, 24, 93, 0.9) !important;
+backdrop-filter: blur(15px) !important;
+-webkit-backdrop-filter: blur(15px) !important;
+border: 1px solid rgba(190, 24, 93, 0.7) !important;
+border-radius: 20px !important;
+color: white !important;
+padding: 0.6rem 1.2rem !important;
+font-weight: 600 !important;
+font-size: 0.85rem !important;
+cursor: pointer !important;
+transition: all 0.3s ease !important;
+box-shadow: 0 4px 15px rgba(190, 24, 93, 0.4) !important;
+z-index: 1001 !important;
+white-space: nowrap !important;
+}
+
+.demo-btn:hover,
+.fill-demo-btn:hover,
+button[onclick*="demo"]:hover,
+button[onclick*="Demo"]:hover {
+background: rgba(190, 24, 93, 1) !important;
+box-shadow: 0 6px 20px rgba(190, 24, 93, 0.5) !important;
+transform: translateY(-1px) !important;
+}
+
+/* Form */
+.prediction-form { 
+padding: 40px 50px; /* Increased horizontal padding */
+display: flow-root; 
+}
+
+/* Grid - UPDATED FOR WIDER LAYOUT */
+.form-row {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); /* Wider minimum */
+gap: 2rem; /* More generous gap */
+margin-bottom: 1.5rem;
+}
+
+.form-group { position: relative; }
+.form-group label {
+display: block;
+color: var(--text-primary);
+font-weight: 600;
+margin-bottom: 8px;
+font-size: 0.95rem;
+}
+
+.form-group input,
+.form-group select {
+width: 100%;
+padding: 12px 16px;
+border: 1px solid var(--cv-border);
+border-radius: 12px;
+font-size: 1rem;
+transition: all 0.3s ease;
+background: rgba(255,255,255,0.3);
+backdrop-filter: blur(10px);
+-webkit-backdrop-filter: blur(10px);
+box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+outline: none;
+border-color: var(--cv-primary);
+box-shadow: 0 0 0 3px var(--cv-light), inset 0 1px 3px rgba(0,0,0,0.1);
+transform: translateY(-2px);
+}
+
+.form-group .input-help {
+font-size: 0.85rem; 
+color: var(--text-secondary);
+margin-top: 5px; 
+font-style: italic;
+}
+
+/* Sections - IMPROVED PADDING */
+.form-section {
+margin-bottom: 40px;
+padding: 40px 50px; /* Increased horizontal padding */
+background: rgba(255,255,255,0.12);
+backdrop-filter: blur(15px);
+-webkit-backdrop-filter: blur(15px);
+border-radius: 20px;
+border: 1px solid var(--cv-border);
+box-shadow: 0 6px 25px rgba(190,24,93,0.1), inset 0 1px 0 rgba(255,255,255,0.2);
+}
+
+.form-section::before { display: none; }
+.form-section h3 {
+color: var(--cv-primary);
+font-size: 1.4rem;
+font-weight: 600;
+margin-top: 0;
+margin-bottom: 20px;
+display: flex;
+align-items: center;
+gap: 10px;
+}
+
+.section-icon { font-size: 1.5rem; }
+
+/* Submit */
+.submit-section {
+text-align: center;
+padding: 30px;
+background: rgba(255,255,255,0.1);
+border-radius: 15px;
+display: flow-root;
+}
+
+.predict-btn {
+background: var(--cv-accent);
+color: white;
+padding: 16px 40px;
+border: none;
+border-radius: 50px;
+font-size: 1.1rem;
+font-weight: 600;
+cursor: pointer;
+transition: all 0.3s ease;
+box-shadow: 0 8px 25px rgba(190,24,93,0.3);
+position: relative; 
+overflow: hidden;
+}
+
+.predict-btn::before {
+content: '';
+position: absolute; 
+top: 0; 
+left: -100%; 
+width: 100%; 
+height: 100%;
+background: linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);
+transition: left 0.6s;
+}
+
+.predict-btn:hover::before { left: 100%; }
+.predict-btn:hover {
+transform: translateY(-3px);
+box-shadow: 0 12px 35px rgba(190,24,93,0.4);
+}
+
+.predict-btn:active { transform: translateY(-1px); }
+.predict-btn:disabled {
+background: #bbb; 
+cursor: not-allowed; 
+transform: none; 
+box-shadow: none;
+}
+
+/* Back button */
+.back-btn {
+background: rgba(255,255,255,0.3);
+backdrop-filter: blur(10px);
+-webkit-backdrop-filter: blur(10px);
+border: 1px solid var(--cv-border);
+border-radius: 12px;
+color: var(--cv-primary);
+padding: 0.5rem 1rem;
+display: inline-block;
+margin-bottom: 1.5rem;
+transition: all 0.3s ease;
+box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.back-btn:hover {
+background: rgba(190,24,93,0.15);
+backdrop-filter: blur(15px);
+-webkit-backdrop-filter: blur(15px);
+transform: translateX(-5px);
+box-shadow: 0 4px 15px rgba(190,24,93,0.15);
+}
+
+/* Progress bar */
+.form-progress {
+width: 100%; 
+height: 6px;
+background: rgba(255,255,255,0.3);
+border-radius: 3px;
+margin-bottom: 30px;
+overflow: hidden;
+}
+
+.form-progress-bar {
+height: 100%;
+background: var(--cv-accent);
+border-radius: 3px;
+width: 0%;
+transition: width 0.3s ease;
+}
+
+/* Loading spinner - FIXED TO MATCH HTML STRUCTURE */
+.loading {
+display: none;
+text-align: center;
+padding: 30px 20px;
+background: rgba(250, 239, 249, 0.568);
+border-radius: 15px;
+backdrop-filter: blur(10px);
+-webkit-backdrop-filter: blur(10px);
+margin: 20px auto;
+position: relative;
+z-index: 1000;
+}
+
+.loading.show {
+display: block !important;
+animation: fadeIn 3s ease-in-out;
+}
+
+.loading .spinner {
+width: 50px;
+height: 50px;
+border: 5px solid var(--cv-light);
+border-top: 5px solid var(--cv-primary);
+border-radius: 50%;
+animation: spin 3s linear infinite;
+margin: 0 auto 15px auto;
+}
+
+.loading p {
+color: var(--cv-primary);
+font-weight: 600;
+margin: 0;
+font-size: 1rem;
+}
+
+@keyframes spin {
+0% { transform: rotate(0deg); }
+100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+0% { opacity: 0; transform: translateY(10px); }
+100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Enhanced visibility during loading */
+.prediction-form.loading-active {
+position: relative;
+}
+
+.prediction-form.loading-active::after {
+content: '';
+position: absolute;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background: rgba(255, 255, 255, 0.8);
+backdrop-filter: blur(2px);
+-webkit-backdrop-filter: blur(2px);
+z-index: 999;
+display: block;
+}
+
+.prediction-form.loading-active .loading {
+position: relative;
+z-index: 1001;
+}
+
+/* Result container base styling */
+.result-container {
+    margin-top: 30px;
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    display: none; /* Hidden by default */
+    transition: all 0.5s ease;
+    transform: translateY(20px);
+    opacity: 0;
+    background: var(--white-soft);
+    box-shadow: 0 6px 25px rgba(190,24,93,0.1);
+}
+
+/* When shown */
+.result-container.show {
+    display: block !important;
+    opacity: 1;
+    transform: translateY(0);
+    animation: slideInUp 0.5s ease-out;
+}
+
+/* High-risk styling */
+.result-container.high-risk {
+    background: rgba(190,24,93,0.15);
+    border: 1px solid rgba(190,24,93,0.4);
+    color: var(--cv-primary);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* Low-risk styling */
+.result-container.low-risk {
+    background: rgba(46,204,113,0.15);
+    border: 1px solid rgba(46,204,113,0.4);
+    color: #27ae60;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes slideInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(190,24,93,0.7); }
+    50%     { box-shadow: 0 0 0 20px rgba(190,24,93,0); }
+}
+
+/* Inner elements */
+.result-container h3 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.result-container .risk-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.risk-metrics {
+    display: flex;
+    justify-content: space-around;
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+}
+
+.risk-metrics p {
+    margin: 0;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+.risk-metrics strong {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.recommendation-section {
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 20px;
+    backdrop-filter: blur(10px);
+}
+
+.recommendation-section h4 {
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+}
+
+/* Override focus and blue tint - FIXED TO BE MORE SPECIFIC */
+input:focus, select:focus {
+outline: none !important;
+box-shadow: 0 0 0 3px var(--cv-light) !important;
+}
+
+/* Responsive - UPDATED FOR WIDER LAYOUT */
+@media (max-width: 1024px) {
+.form-container,
+.cardio-form,
+.prediction-container {
+max-width: 95% !important;
+padding: 0 1.5rem !important;
+}
+.form-grid,
+.form-row {
+grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
+gap: 1.5rem !important;
+}
+}
+
+@media (max-width: 768px) {
+.form-container,
+.cardio-form,
+.prediction-container {
+max-width: 98% !important;
+padding: 0 1rem !important;
+}
+.prediction-container, 
+.form-page { 
+margin: 1rem; 
+padding: 1.5rem; 
+}
+.form-grid,
+.form-row { 
+grid-template-columns: 1fr !important; 
+gap: 1rem !important; 
+}
+.form-section { 
+padding: 1.5rem 2rem !important; 
+margin-bottom: 1.5rem; 
+}
+.form-progress { margin-bottom: 20px; }
+.demo-btn, .fill-demo-btn, button[onclick*="demo"] {
+position: static !important;
+margin-bottom: 1rem !important;
+display: block !important;
+}
+}
+
+@media (max-width: 480px) {
+.form-section { 
+padding: 1rem 1.5rem !important; 
+}
+.form-grid,
+.form-row { 
+gap: 0.75rem !important; 
+}
+.predict-btn { 
+padding: 1rem 1.5rem; 
+font-size: 0.95rem; 
+}
+.input-help { 
+font-size: 0.8rem; 
+}
+}
+
+/* Disclaimer icon sizing */
+.disclaimer svg {
+  width: 1.5rem;    /* 24 px */
+  height: 1.5rem;   /* 24 px */
+  flex-shrink: 0;   /* don't collapse */
+  margin-right: 0.75rem;
+  fill: var(--cv-primary);
+}
+
+/* Ensure the disclaimer container aligns nicely */
+.disclaimer {
+  display: flex;
+  align-items: center;
+  background: rgba(255,230,230,0.6);
+  border-left: 4px solid var(--cv-primary);
+  padding: 0.75rem 1rem;
+  border-radius: 0 0 0.75rem 0.75rem;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: var(--text-primary);
+}
