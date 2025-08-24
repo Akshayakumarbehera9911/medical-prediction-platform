@@ -9,35 +9,36 @@ html {
     scroll-behavior: smooth;
 }
 
+/* Change this line (around line 15): */
 body {
     font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    line-height: 1.6;
-    color: #333;
-    background: #f8f9fa;
+    /* TO: */
+    font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-/* ========== GOOGLE FONTS STYLING ========== */
+
+/* And change all these: */
 h1, h2, h3, h4, h5, h6 {
     font-family: 'Poppins', 'Segoe UI', sans-serif;
-    font-weight: 600;
+    /* TO: */
+    font-family: 'Montserrat', 'Segoe UI', sans-serif;
 }
 
 .logo-text {
     font-family: 'Poppins', sans-serif;
-    font-weight: 700;
-}
-
-.nav-link {
-    font-weight: 500;
+    /* TO: */
+    font-family: 'Montserrat', sans-serif;
 }
 
 button, .btn, .predict-btn, .hero-btn, .service-btn, .cta-btn {
     font-family: 'Inter', sans-serif;
-    font-weight: 500;
+    /* TO: */
+    font-family: 'Roboto', sans-serif;
 }
 
 .footer h3, .footer h4 {
     font-family: 'Poppins', sans-serif;
-    font-weight: 600;
+    /* TO: */
+    font-family: 'Montserrat', sans-serif;
 }
 /* ========== SHARED UTILITY CLASSES ========== */
 .container {
