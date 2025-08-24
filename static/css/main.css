@@ -9,36 +9,31 @@ html {
     scroll-behavior: smooth;
 }
 
-/* Change this line (around line 15): */
+/* Around line 15 - Change body font: */
 body {
-    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    /* TO: */
-    font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Nunito', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* ... rest stays the same ... */
 }
 
-/* And change all these: */
+/* Change all heading fonts: */
 h1, h2, h3, h4, h5, h6 {
-    font-family: 'Poppins', 'Segoe UI', sans-serif;
-    /* TO: */
-    font-family: 'Montserrat', 'Segoe UI', sans-serif;
+    font-family: 'Playfair Display', 'Segoe UI', serif;
+    font-weight: 600;
 }
 
 .logo-text {
-    font-family: 'Poppins', sans-serif;
-    /* TO: */
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
 }
 
 button, .btn, .predict-btn, .hero-btn, .service-btn, .cta-btn {
-    font-family: 'Inter', sans-serif;
-    /* TO: */
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 500;
 }
 
 .footer h3, .footer h4 {
-    font-family: 'Poppins', sans-serif;
-    /* TO: */
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
 }
 /* ========== SHARED UTILITY CLASSES ========== */
 .container {
