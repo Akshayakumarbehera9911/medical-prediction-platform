@@ -462,7 +462,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
     
     // Add demo button if in development
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    if (true) {
         const demoBtn = document.createElement('button');
         demoBtn.type = 'button';
         demoBtn.className = 'demo-btn';

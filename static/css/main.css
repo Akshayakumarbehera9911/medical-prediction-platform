@@ -585,7 +585,7 @@ body {
     bottom: -8px;
     left: 50%;
     transform: translateX(-50%);
-    width: 70%; 
+    width: 0%; 
     /* line under the heading of feature section */
     height: 4px;
     background: linear-gradient(90deg, #d4146a, #e91e63, #ff6b9d);
