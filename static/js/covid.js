@@ -309,10 +309,10 @@ document.addEventListener('DOMContentLoaded', function() {
         resultsSection.classList.add(isPositive ? 'covid-positive' : 'covid-negative');
         
         let resultsHTML = `
-            <div class="result-icon">
-                ${isPositive ? '🦠' : '✅'}
-            </div>
-            <h3>${result.prediction}</h3>
+            <h3>
+                <span class="result-icon">${isPositive ? '🦠' : '✅'}</span>
+                ${result.prediction}
+            </h3>
             <div class="probability-display">
                 <div class="prob-item ${!isPositive ? 'highlight' : ''}">
                     <span class="prob-label">COVID-19 Negative:</span>

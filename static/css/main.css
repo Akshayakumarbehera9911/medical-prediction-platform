@@ -173,7 +173,7 @@ button, .btn, .predict-btn, .hero-btn, .service-btn, .cta-btn {
   position: relative;
   width: 100vw;
   height: 100vh;
-  background-image: url('/static/images/your-background.jpg');
+  background-image: url("/static/images/your-background.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -210,6 +210,8 @@ button, .btn, .predict-btn, .hero-btn, .service-btn, .cta-btn {
   flex: 1;
   max-width: 600px;
   color: white;
+  margin-left: 200px;
+  margin-bottom: 120px;
 }
 
 .hero-title {
@@ -219,6 +221,8 @@ button, .btn, .predict-btn, .hero-btn, .service-btn, .cta-btn {
   line-height: 1.2;
   text-align: left !important;
   color: #b11264;
+  text-align: center;
+  
 }
 
 .hero-title span {
@@ -242,14 +246,14 @@ button, .btn, .predict-btn, .hero-btn, .service-btn, .cta-btn {
 .hero-button,
 .hero-btn {
   display: inline-block;
-  padding: 0.2rem 2.5rem;
+  padding: 0.8rem 2.5rem;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 2px solid #f38aad;
   border-radius: 1rem;
   color: #333;
-  font-size: 1.1rem;
+  font-size: 1.4rem;
   font-weight: 700;
   text-decoration: none;
   text-align: center;
@@ -258,6 +262,9 @@ button, .btn, .predict-btn, .hero-btn, .service-btn, .cta-btn {
   cursor: pointer;
   transition: all 0.3s ease;
   overflow: hidden;
+ text-shadow: 2px 2px 2px rgb(223, 115, 187);
+  
+  margin-left: 50px; 
 }
 
 .hero-btn::before {
@@ -1626,6 +1633,338 @@ button, .btn, .predict-btn, .hero-btn, .service-btn, .cta-btn {
 }
 
 
+
+.about-container {
+    position: relative;
+    z-index: 1;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.section-title {
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: #7d094f;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+}
+
+.section-subtitle {
+    font-size: 1.25rem;
+    color: #9f006f;
+    max-width: 650px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* Team Grid */
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 4rem;
+}
+
+.team-card {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 24px;
+    padding: 2rem;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-shadow: 
+        0 8px 32px rgba(255, 182, 193, 0.15),
+        0 4px 16px rgba(255, 255, 255, 0.1),
+        inset 0 1px 2px rgba(255, 255, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+}
+
+.team-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.8s ease;
+}
+
+.team-card:hover::before {
+    left: 100%;
+}
+
+.team-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 
+        0 20px 50px rgba(255, 105, 180, 0.25),
+        0 8px 25px rgba(255, 255, 255, 0.15),
+        inset 0 2px 4px rgba(255, 255, 255, 0.3);
+}
+
+/* Team Image Container */
+.team-image-container {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 1.5rem auto;
+    border-radius: 50%;
+    overflow: hidden;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.8), rgba(255, 240, 245, 0.6));
+    box-shadow: 
+        8px 8px 16px rgba(212, 20, 106, 0.1),
+        -8px -8px 16px rgba(255, 255, 255, 0.8),
+        inset 2px 2px 6px rgba(255, 255, 255, 0.9);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.team-card:hover .team-image-container {
+    transform: scale(1.05);
+    box-shadow: 
+        12px 12px 24px rgba(212, 20, 106, 0.15),
+        -12px -12px 24px rgba(255, 255, 255, 0.9),
+        inset 3px 3px 8px rgba(255, 255, 255, 1);
+}
+
+.team-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.team-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
+}
+
+.placeholder-icon {
+    width: 48px;
+    height: 48px;
+    stroke: #d4146a;
+    opacity: 0.6;
+}
+
+/* Team Info */
+.team-info {
+    flex-grow: 1;
+}
+
+.team-name {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+    text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.9);
+}
+
+.team-role {
+    font-size: 1rem;
+    color: #d4146a;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.team-description {
+    color: #374151;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.team-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.skill-tag {
+    background: linear-gradient(135deg, #d4146a, #e91e63);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(212, 20, 106, 0.2);
+    transition: transform 0.2s ease;
+}
+
+.skill-tag:hover {
+    transform: scale(1.05);
+}
+
+/* Project Info Section */
+.project-info {
+    display: flex;
+    justify-content: center;
+}
+
+.project-card {
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 24px;
+    padding: 3rem;
+    max-width: 800px;
+    text-align: center;
+    box-shadow: 
+        0 8px 32px rgba(255, 182, 193, 0.15),
+        inset 0 1px 2px rgba(255, 255, 255, 0.2);
+}
+
+.project-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 1.5rem;
+    text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.9);
+}
+
+.project-description {
+    color: #374151;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+}
+
+.project-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1.5rem;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #d4146a;
+    margin-bottom: 0.5rem;
+    text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #6b7280;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Floating animations */
+.team-card:nth-child(1) { animation: float1 6s ease-in-out infinite; }
+.team-card:nth-child(2) { animation: float2 7s ease-in-out infinite; }
+.team-card:nth-child(3) { animation: float3 8s ease-in-out infinite; }
+.team-card:nth-child(4) { animation: float1 9s ease-in-out infinite; }
+
+@keyframes float1 {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-6px); }
+}
+
+@keyframes float2 {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-4px); }
+}
+
+@keyframes float3 {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .about-us {
+        padding: 3rem 0;
+    }
+
+    .about-container {
+        padding: 0 1rem;
+    }
+
+    .section-title {
+        font-size: 2.2rem;
+    }
+
+    .section-subtitle {
+        font-size: 1rem;
+    }
+
+    .team-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .team-card {
+        padding: 1.5rem;
+    }
+
+    .team-image-container {
+        width: 100px;
+        height: 100px;
+    }
+
+    .project-card {
+        padding: 2rem;
+    }
+
+    .project-title {
+        font-size: 1.6rem;
+    }
+
+    .project-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .section-title {
+        font-size: 1.8rem;
+    }
+
+    .team-card {
+        padding: 1rem;
+    }
+
+    .team-image-container {
+        width: 80px;
+        height: 80px;
+    }
+
+    .project-card {
+        padding: 1.5rem;
+    }
+
+    .project-stats {
+        grid-template-columns: 1fr;
+    }
+}
 
 
 
