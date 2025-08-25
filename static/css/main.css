@@ -25,6 +25,7 @@ h1, h2, h3, h4, h5, h6 {
 .logo-text {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700;
+
 }
 
 button, .btn, .predict-btn, .hero-btn, .service-btn, .cta-btn {
@@ -82,6 +83,7 @@ button, .btn, .predict-btn, .hero-btn, .service-btn, .cta-btn {
 }
 
 /* ========== NAVIGATION ========== */
+/* Responsive MediPredict Navbar CSS */
 .navbar {
     position: sticky;
     top: 0;
@@ -93,18 +95,20 @@ button, .btn, .predict-btn, .hero-btn, .service-btn, .cta-btn {
 }
 
 .nav-container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 0 2rem;
+    padding: 0 1rem;
     display: flex;
-    justify-content: space-between; /* This should push logo left and menu right */
+    justify-content: space-between;
     align-items: center;
     width: 100%;
+    position: relative;
 }
 
 .nav-logo {
     display: flex;
     align-items: center;
+    margin-left: 0.5rem; /* Push logo slightly left */
 }
 
 .nav-logo a {
@@ -114,21 +118,26 @@ button, .btn, .predict-btn, .hero-btn, .service-btn, .cta-btn {
     color: #be185d;
     font-weight: 700;
     font-size: 1.5rem;
+    transition: transform 0.2s ease;
+}
+
+.nav-logo a:hover {
+    transform: scale(1.02);
 }
 
 .logo-img {
     width: 32px;
     height: 32px;
-    margin-right: 0.5rem;
+    margin-right: 0.75rem;
     border-radius: 8px;
 }
 
-/* Fix the navigation menu alignment */
+/* Navigation menu */
 .nav-menu {
     display: flex;
-    gap: 2rem;
+    gap: 2.5rem;
     align-items: center;
-    margin-left: auto; /* Force menu to the right */
+    margin-right: 0.5rem; /* Push menu slightly right */
 }
 
 .nav-link {
@@ -136,7 +145,9 @@ button, .btn, .predict-btn, .hero-btn, .service-btn, .cta-btn {
     text-decoration: none;
     font-weight: 500;
     position: relative;
-    transition: color 0.3s ease;
+    transition: all 0.3s ease;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
 }
 
 .nav-link::after {
@@ -159,7 +170,135 @@ button, .btn, .predict-btn, .hero-btn, .service-btn, .cta-btn {
 }
 
 
+/* Mobile hamburger menu */
+.nav-toggle {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+    padding: 0.5rem;
+    margin-right: 0.5rem;
+    background: none;
+    border: none;
+}
 
+.bar {
+    width: 25px;
+    height: 3px;
+    background-color: #be185d;
+    margin: 3px 0;
+    transition: 0.3s;
+    border-radius: 2px;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 1200px) {
+    .nav-container {
+        padding: 0 1.5rem;
+    }
+    
+    .nav-menu {
+        gap: 2rem;
+    }
+}
+
+@media screen and (max-width: 992px) {
+    .nav-container {
+        padding: 0 1rem;
+    }
+    
+    .nav-menu {
+        gap: 1.5rem;
+    }
+    
+    .nav-link {
+        padding: 0.4rem 0.8rem;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .nav-container {
+        padding: 0 0.75rem;
+    }
+    
+    .nav-toggle {
+        display: flex;
+    }
+
+    .nav-menu {
+        position: fixed;
+        left: -100%;
+        top: 70px;
+        flex-direction: column;
+        background: linear-gradient(135deg, #fff0f5, #fdf2f8);
+        width: 100%;
+        text-align: center;
+        transition: 0.3s;
+        box-shadow: 0 10px 27px rgba(0, 0, 0, 0.05);
+        padding: 2rem 0;
+        gap: 1.5rem;
+        margin-right: 0;
+        border-top: 1px solid rgba(255, 182, 193, 0.2);
+    }
+
+    .nav-menu.active {
+        left: 0;
+    }
+
+    .nav-link {
+        padding: 1rem 2rem;
+        display: block;
+        width: 100%;
+        font-size: 1.1rem;
+        border-radius: 0;
+    }
+
+    .nav-link:hover {
+        background: rgba(190, 24, 93, 0.1);
+    }
+
+    .nav-logo a {
+        font-size: 1.3rem;
+    }
+
+    .logo-img {
+        width: 28px;
+        height: 28px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .nav-container {
+        padding: 0 0.5rem;
+    }
+    
+    .nav-logo {
+        margin-left: 0.25rem;
+    }
+    
+    .nav-toggle {
+        margin-right: 0.25rem;
+    }
+    
+    .nav-logo a {
+        font-size: 1.2rem;
+    }
+    
+    .logo-img {
+        width: 24px;
+        height: 24px;
+        margin-right: 0.5rem;
+    }
+}
+
+@media screen and (max-width: 320px) {
+    .nav-container {
+        padding: 0 0.25rem;
+    }
+    
+    .nav-logo a {
+        font-size: 1.1rem;
+    }
+}
 
 /* ========== HOME PAGE STYLES ========== */
 .main-content {
@@ -247,12 +386,12 @@ button, .btn, .predict-btn, .hero-btn, .service-btn, .cta-btn {
 .hero-button,
 .hero-btn {
   display: inline-block;
-  padding: 0.8rem 2.5rem;
+  padding: 0.5rem 2.3rem;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 2px solid #f38aad;
-  border-radius: 1rem;
+  border: 3px solid #f38aad;
+  border-radius: 3rem;
   color: #333;
   font-size: 1.4rem;
   font-weight: 700;
