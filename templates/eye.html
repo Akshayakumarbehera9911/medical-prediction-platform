@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eye Disease Detection - Medical Prediction Platform</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/eye.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header Section -->
+    <div class="header-section">
+        <div class="back-btn-container">
+            <a href="/" class="back-btn">
+                <i class="fas fa-home"></i>
+                Back to Home
+            </a>
+        </div>
+        
+        <div class="header-content">
+            <div class="header-icon">
+                <i class="fas fa-eye"></i>
+            </div>
+            <h1 class="main-title">Eye Disease Detection</h1>
+            <p class="subtitle">Advanced AI-powered retinal image analysis</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Upload Section -->
+        <div class="upload-card">
+            <div class="card-header">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <h3>Upload Retinal Image</h3>
+            </div>
+            
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-content">
+                    <i class="fas fa-image upload-icon"></i>
+                    <h4>Drag & Drop your image here</h4>
+                    <p>or <span class="browse-link">click to browse</span></p>
+                    <div class="file-info">
+                        <small>Supported: PNG, JPG, JPEG, GIF, BMP (Max 10MB)</small>
+                    </div>
+                </div>
+                <input type="file" id="fileInput" accept="image/*" hidden>
+            </div>
+
+            <!-- Image Preview -->
+            <div class="image-preview" id="imagePreview" style="display: none;">
+                <div class="preview-container">
+                    <img id="previewImage" src="" alt="Preview">
+                    <div class="image-details">
+                        <div class="image-name" id="imageName"></div>
+                        <div class="image-size" id="imageSize"></div>
+                    </div>
+                    <button class="remove-btn" id="removeImage">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Analyze Button -->
+            <button class="analyze-btn" id="analyzeBtn" disabled>
+                <i class="fas fa-brain"></i>
+                <span class="btn-text">Analyze Image</span>
+                <div class="loading-spinner" style="display: none;">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </div>
+            </button>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-card" id="resultsCard" style="display: none;">
+            <div class="card-header">
+                <i class="fas fa-chart-line"></i>
+                <h3>Analysis Results</h3>
+            </div>
+            
+            <div class="results-content">
+                <!-- Main Result -->
+                <div class="main-result" id="mainResult">
+                    <div class="result-icon" id="resultIcon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div class="result-text">
+                        <h4 id="resultTitle">Analysis Complete</h4>
+                        <p id="resultDescription">Results will appear here</p>
+                    </div>
+                    <div class="confidence-badge" id="confidenceBadge">
+                        <span id="confidenceText">0%</span>
+                    </div>
+                </div>
+
+                <!-- Detailed Results -->
+                <div class="detailed-results" id="detailedResults">
+                    <h5>Probability Distribution</h5>
+                    <div class="probability-list" id="probabilityList">
+                        <!-- Probability bars will be inserted here -->
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="result-actions">
+                    <button class="action-btn secondary" id="newAnalysisBtn">
+                        <i class="fas fa-plus"></i>
+                        New Analysis
+                    </button>
+                    <button class="action-btn primary" id="downloadResultsBtn">
+                        <i class="fas fa-download"></i>
+                        Download Report
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Section -->
+        <div class="error-card" id="errorCard" style="display: none;">
+            <div class="error-content">
+                <i class="fas fa-exclamation-triangle error-icon"></i>
+                <h4>Analysis Error</h4>
+                <p id="errorMessage">Something went wrong during analysis</p>
+                <button class="action-btn primary" id="retryBtn">
+                    <i class="fas fa-redo"></i>
+                    Try Again
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2024 Medical Prediction Platform. Advanced AI for Healthcare.</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/eye.js') }}"></script>
+</body>
+</html>

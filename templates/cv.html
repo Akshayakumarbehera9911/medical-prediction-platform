@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV Disease Risk Assessment</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cv.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="nav-button">
+                <a href="/" class="home-btn">
+                    <i class="fas fa-home"></i>
+                    Back to Home
+                </a>
+            </div>
+            <i class="fas fa-heart-pulse"></i>
+            <h1>Cardiovascular Disease Risk Assessment</h1>
+            <p>Advanced ML-based cardiovascular risk prediction</p>
+        </div>
+
+        <form id="cvForm" class="cv-form">
+            <div class="form-grid">
+                <!-- Basic Information -->
+                <div class="form-section">
+                    <h3><i class="fas fa-user"></i> Basic Information</h3>
+
+                    <div class="form-group">
+                        <label for="age">Age (years)</label>
+                        <input type="number" id="age" name="age" min="1" max="120" required>
+                        <span class="help-text">Enter your age in years</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gender">Gender</label>
+                        <select id="gender" name="gender" required>
+                            <option value="">Select Gender</option>
+                            <option value="1">Female</option>
+                            <option value="2">Male</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="height">Height (cm)</label>
+                        <input type="number" id="height" name="height" min="100" max="250" required>
+                        <span class="help-text">Height in centimeters</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="weight">Weight (kg)</label>
+                        <input type="number" id="weight" name="weight" min="20" max="300" required>
+                        <span class="help-text">Weight in kilograms</span>
+                    </div>
+                </div>
+
+                <!-- Blood Pressure -->
+                <div class="form-section">
+                    <h3><i class="fas fa-heartbeat"></i> Blood Pressure</h3>
+
+                    <div class="form-group">
+                        <label for="ap_hi">Systolic BP (mmHg)</label>
+                        <input type="number" id="ap_hi" name="ap_hi" min="70" max="250" required>
+                        <span class="help-text">Upper blood pressure reading</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ap_lo">Diastolic BP (mmHg)</label>
+                        <input type="number" id="ap_lo" name="ap_lo" min="40" max="150" required>
+                        <span class="help-text">Lower blood pressure reading</span>
+                    </div>
+                </div>
+
+                <!-- Lab Values -->
+                <div class="form-section">
+                    <h3><i class="fas fa-vial"></i> Laboratory Values</h3>
+
+                    <div class="form-group">
+                        <label for="cholesterol">Cholesterol Level</label>
+                        <select id="cholesterol" name="cholesterol" required>
+                            <option value="">Select Level</option>
+                            <option value="1">Normal</option>
+                            <option value="2">Above Normal</option>
+                            <option value="3">Well Above Normal</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gluc">Glucose Level</label>
+                        <select id="gluc" name="gluc" required>
+                            <option value="">Select Level</option>
+                            <option value="1">Normal</option>
+                            <option value="2">Above Normal</option>
+                            <option value="3">Well Above Normal</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Lifestyle Factors -->
+                <div class="form-section">
+                    <h3><i class="fas fa-dumbbell"></i> Lifestyle Factors</h3>
+
+                    <div class="form-group">
+                        <label for="smoke">Do you smoke?</label>
+                        <select id="smoke" name="smoke" required>
+                            <option value="">Select Option</option>
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="alco">Do you consume alcohol?</label>
+                        <select id="alco" name="alco" required>
+                            <option value="">Select Option</option>
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="active">Are you physically active?</label>
+                        <select id="active" name="active" required>
+                            <option value="">Select Option</option>
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-chart-line"></i>
+                    Assess CV Risk
+                </button>
+                <button type="reset" class="reset-btn">
+                    <i class="fas fa-redo"></i>
+                    Reset Form
+                </button>
+            </div>
+        </form>
+
+        <!-- Results Section -->
+        <div id="results" class="results-section" style="display: none;">
+            <div class="result-card">
+                <div class="result-header">
+                    <h3><i class="fas fa-chart-bar"></i> Risk Assessment Results</h3>
+                </div>
+                <div class="result-content">
+                    <div id="prediction" class="prediction-result"></div>
+                    <div id="probability" class="probability-result"></div>
+                    <div id="bmi" class="bmi-result"></div>
+                    <div id="recommendations" class="recommendations"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>Analyzing cardiovascular risk...</p>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/cv.js') }}"></script>
+</body>
+
+</html>

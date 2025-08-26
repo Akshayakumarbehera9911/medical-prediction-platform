@@ -1,0 +1,602 @@
+/* CV Disease Risk Assessment Styles */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary-color: #e91e63;
+    --secondary-color: #c2185b;
+    --accent-color: #ff4081;
+    --success-color: #4caf50;
+    --warning-color: #ff9800;
+    --danger-color: #f44336;
+    --dark-color: #2c3e50;
+    --light-color: #f8f9fa;
+    --text-color: #333;
+    --text-secondary: #666;
+    --border-color: #e0e0e0;
+    --shadow: 0 8px 32px rgba(233, 30, 99, 0.1);
+    --gradient: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);
+    --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    --neomorphism-light: #ffffff;
+    --neomorphism-dark: #d1d9e6;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--bg-gradient);
+    min-height: 100vh;
+    padding: 20px;
+    color: var(--text-color);
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: var(--neomorphism-light);
+    border-radius: 20px;
+    box-shadow: 20px 20px 60px #d1d9e6, -20px -20px 60px #ffffff;
+    overflow: hidden;
+}
+
+.header {
+    background: var(--gradient);
+    color: white;
+    text-align: center;
+    padding: 50px 20px;
+    position: relative;
+    border-radius: 20px 20px 0 0;
+}
+
+.header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="rgba(255,255,255,0.1)"><path d="M0,0v46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1049.93,6.78,1000,0Z"></path></svg>') no-repeat bottom center;
+    background-size: 100% 60px;
+}
+
+.header i {
+    font-size: 3.5rem;
+    margin-bottom: 15px;
+    animation: pulse 2s infinite;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.header h1 {
+    font-size: 2.8rem;
+    margin-bottom: 10px;
+    font-weight: 700;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+.header p {
+    font-size: 1.2rem;
+    opacity: 0.95;
+    font-weight: 300;
+}
+.nav-button {
+    position: absolute;
+    top: 25px;
+    left: 25px;
+    z-index: 10;
+}
+
+.home-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 25px;
+    background: var(--neomorphism-light);
+    color: var(--primary-color);
+    text-decoration: none;
+    border-radius: 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 8px 8px 16px rgba(255, 255, 255, 0.1), -8px -8px 16px rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.home-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 12px 12px 20px rgba(255, 255, 255, 0.15), -8px -8px 16px rgba(255, 255, 255, 0.9);
+    color: var(--secondary-color);
+}
+
+.home-btn:active {
+    transform: translateY(0);
+    box-shadow: 4px 4px 8px rgba(255, 255, 255, 0.1), -4px -4px 8px rgba(255, 255, 255, 0.8);
+}
+
+.home-btn i {
+    font-size: 1.1rem;
+}
+.cv-form {
+    padding: 50px 40px;
+    background: var(--neomorphism-light);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.form-section {
+    background: var(--neomorphism-light);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: inset 8px 8px 16px var(--neomorphism-dark), inset -8px -8px 16px var(--neomorphism-light);
+    border: 1px solid rgba(233, 30, 99, 0.1);
+    transition: all 0.3s ease;
+}
+
+.form-section:hover {
+    box-shadow: inset 12px 12px 20px var(--neomorphism-dark), inset -12px -12px 20px var(--neomorphism-light);
+}
+
+.form-section h3 {
+    color: var(--primary-color);
+    margin-bottom: 25px;
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+}
+
+.form-section h3 i {
+    font-size: 1.6rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: var(--text-color);
+    font-size: 0.95rem;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 15px 20px;
+    border: none;
+    border-radius: 15px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background: var(--neomorphism-light);
+    box-shadow: inset 4px 4px 8px var(--neomorphism-dark), inset -4px -4px 8px var(--neomorphism-light);
+    color: var(--text-color);
+    cursor: pointer;
+}
+
+.form-group select:focus {
+    outline: none;
+    box-shadow: inset 6px 6px 12px var(--neomorphism-dark), inset -6px -6px 12px var(--neomorphism-light), 0 0 0 3px rgba(233, 30, 99, 0.1);
+}
+
+.help-text {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    display: block;
+    font-style: italic;
+}
+
+.form-actions {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 40px;
+}
+
+.submit-btn,
+.reset-btn {
+    padding: 18px 35px;
+    border: none;
+    border-radius: 15px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 200px;
+    justify-content: center;
+    position: relative;
+}
+
+.submit-btn {
+    background: var(--gradient);
+    color: white;
+    box-shadow: 8px 8px 16px rgba(233, 30, 99, 0.3), -8px -8px 16px rgba(255, 255, 255, 0.8);
+    text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.submit-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 12px 12px 20px rgba(233, 30, 99, 0.4), -8px -8px 16px rgba(255, 255, 255, 0.9);
+}
+
+.submit-btn:active {
+    transform: translateY(0);
+    box-shadow: 4px 4px 8px rgba(233, 30, 99, 0.3), -4px -4px 8px rgba(255, 255, 255, 0.8);
+}
+
+.reset-btn {
+    background: var(--neomorphism-light);
+    color: var(--text-secondary);
+    box-shadow: 8px 8px 16px var(--neomorphism-dark), -8px -8px 16px var(--neomorphism-light);
+}
+
+.reset-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 10px 10px 18px var(--neomorphism-dark), -10px -10px 18px var(--neomorphism-light);
+    color: var(--text-color);
+}
+
+.results-section {
+    margin-top: 30px;
+    padding: 0 40px 50px;
+}
+
+.result-card {
+    background: var(--neomorphism-light);
+    border-radius: 20px;
+    box-shadow: 20px 20px 40px var(--neomorphism-dark), -20px -20px 40px var(--neomorphism-light);
+    overflow: hidden;
+    border: 1px solid rgba(233, 30, 99, 0.1);
+}
+
+.result-header {
+    background: var(--gradient);
+    color: white;
+    padding: 25px;
+    text-align: center;
+    border-radius: 20px 20px 0 0;
+}
+
+.result-header h3 {
+    font-size: 1.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-weight: 600;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.result-content {
+    padding: 40px;
+}
+
+.prediction-result {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.risk-high {
+    color: var(--danger-color);
+    font-size: 1.8rem;
+    font-weight: bold;
+    padding: 25px;
+    background: var(--neomorphism-light);
+    border-radius: 20px;
+    box-shadow: inset 8px 8px 16px rgba(244, 67, 54, 0.1), inset -8px -8px 16px var(--neomorphism-light);
+    border: 2px solid rgba(244, 67, 54, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.risk-low {
+    color: var(--success-color);
+    font-size: 1.8rem;
+    font-weight: bold;
+    padding: 25px;
+    background: var(--neomorphism-light);
+    border-radius: 20px;
+    box-shadow: inset 8px 8px 16px rgba(76, 175, 80, 0.1), inset -8px -8px 16px var(--neomorphism-light);
+    border: 2px solid rgba(76, 175, 80, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.probability-result {
+    background: var(--neomorphism-light);
+    padding: 30px;
+    border-radius: 20px;
+    margin-bottom: 25px;
+    text-align: center;
+    box-shadow: inset 6px 6px 12px var(--neomorphism-dark), inset -6px -6px 12px var(--neomorphism-light);
+}
+
+.probability-result h4 {
+    font-size: 1.3rem;
+    color: var(--text-color);
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.circular-progress {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin: 0 auto;
+    border-radius: 50%;
+    background: var(--neomorphism-light);
+    box-shadow: 15px 15px 30px var(--neomorphism-dark), -15px -15px 30px var(--neomorphism-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.circular-progress::before {
+    content: '';
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: var(--neomorphism-light);
+    box-shadow: inset 8px 8px 16px var(--neomorphism-dark), inset -8px -8px 16px var(--neomorphism-light);
+}
+
+.progress-ring {
+    position: absolute;
+    width: 130px;
+    height: 130px;
+    transform: rotate(-90deg);
+}
+
+.progress-ring circle {
+    fill: none;
+    stroke-width: 10;
+    stroke-linecap: round;
+}
+
+.progress-ring .progress-bg {
+    stroke: rgba(233, 30, 99, 0.15);
+}
+
+.progress-ring .progress-fill {
+    stroke: var(--primary-color);
+    transition: stroke-dashoffset 1.5s ease-in-out;
+}
+
+.progress-text {
+    position: relative;
+    z-index: 10;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+.bmi-result {
+    background: var(--neomorphism-light);
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 25px;
+    box-shadow: inset 4px 4px 8px rgba(0, 123, 255, 0.1), inset -4px -4px 8px var(--neomorphism-light);
+    border-left: 4px solid #007bff;
+}
+
+.bmi-result h4 {
+    color: #007bff;
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.recommendations {
+    background: var(--neomorphism-light);
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: inset 4px 4px 8px rgba(255, 152, 0, 0.1), inset -4px -4px 8px var(--neomorphism-light);
+    border-left: 4px solid var(--warning-color);
+}
+
+.recommendations h4 {
+    color: var(--warning-color);
+    margin-bottom: 18px;
+    font-size: 1.3rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.recommendations ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.recommendations li {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 152, 0, 0.1);
+    position: relative;
+    padding-left: 30px;
+    line-height: 1.5;
+}
+
+.recommendations li:before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: var(--success-color);
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.recommendations li:last-child {
+    border-bottom: none;
+}
+
+.loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(233, 30, 99, 0.9);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    color: white;
+    backdrop-filter: blur(10px);
+}
+
+.spinner {
+    width: 60px;
+    height: 60px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading p {
+    font-size: 1.1rem;
+    font-weight: 500;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        margin: 10px;
+        border-radius: 15px;
+    }
+    
+    .header {
+        padding: 40px 20px;
+        border-radius: 15px 15px 0 0;
+    }
+    
+    .header h1 {
+        font-size: 2.2rem;
+    }
+    
+    .cv-form {
+        padding: 30px 20px;
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .form-section {
+        padding: 25px 20px;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .submit-btn,
+    .reset-btn {
+        min-width: auto;
+    }
+    
+    .results-section {
+        padding: 0 20px 30px;
+    }
+    
+    .result-content {
+        padding: 25px;
+    }
+    
+    .circular-progress {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .circular-progress::before {
+        width: 95px;
+        height: 95px;
+    }
+    
+    .progress-ring {
+        width: 105px;
+        height: 105px;
+    }
+}
+
+@media (max-width: 480px) {
+    .header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .header p {
+        font-size: 1rem;
+    }
+    
+    .form-section h3 {
+        font-size: 1.2rem;
+    }
+    
+    .risk-high,
+    .risk-low {
+        font-size: 1.5rem;
+        padding: 20px;
+    }
+    
+    .circular-progress {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .progress-text {
+        font-size: 1.2rem;
+    }
+}
+
+/* SVG Gradient Definition */
+defs {
+    display: none;
+}
+
+svg defs linearGradient {
+    --gradient-start: #e91e63;
+    --gradient-end: #c2185b;
+}

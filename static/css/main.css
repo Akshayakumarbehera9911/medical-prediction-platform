@@ -514,7 +514,6 @@ button, .btn, .predict-btn, .hero-btn, .service-btn, .cta-btn {
     padding: 0 2rem;
 }
 
-
 .section-header {
     text-align: center;
     margin-bottom: 4rem;
@@ -534,10 +533,28 @@ button, .btn, .predict-btn, .hero-btn, .service-btn, .cta-btn {
     margin: 0 auto;
 }
 
+/* ONLY CHANGE: Fixed grid to show exactly 3 cards per row */
 .services-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(3, 1fr); /* Always 3 columns */
+    gap: 2rem; /* Increased gap for better spacing */
+    max-width: 1200px; /* Limit max width */
+    margin: 0 auto; /* Center the grid */
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .services-grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 columns on tablets */
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .services-grid {
+        grid-template-columns: 1fr; /* 1 column on mobile */
+        gap: 1.5rem;
+    }
 }
 
 .service-card {
@@ -552,7 +569,7 @@ button, .btn, .predict-btn, .hero-btn, .service-btn, .cta-btn {
     display: flex;
     flex-direction: column;
     height: auto;
-    min-height: 400px; /* Consistent card height */
+    min-height: 450px; /* Slightly increased for better proportion */
 }
 
 .service-card::before {

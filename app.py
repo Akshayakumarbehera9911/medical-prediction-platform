@@ -5,6 +5,12 @@ import pandas as pd
 import pickle
 from flask_cors import CORS
 import os
+import torch
+import torch.nn as nn
+from torchvision import transforms, models
+from PIL import Image
+import io
+import base64
 
 app = Flask(__name__)
 CORS(app)
@@ -15,10 +21,15 @@ covid_model = None
 covid_scaler = None
 heart_model = None
 heart_scaler = None
+cv_model = None
+cv_scaler = None
+eye_model = None
+eye_transform = None
+eye_class_names = None
 
 def load_models():
     """Load all ML models on startup"""
-    global lung_model, covid_model, covid_scaler, heart_model, heart_scaler
+    global lung_model, covid_model, covid_scaler, heart_model, heart_scaler, cv_model, cv_scaler, eye_model, eye_transform, eye_class_names
     
     try:
         # Load Lung Cancer Model
@@ -42,6 +53,47 @@ def load_models():
         print("✅ Heart Disease model and scaler loaded successfully!")
     except FileNotFoundError:
         print("⚠️ Warning: Heart Disease model or scaler file not found!")
+    
+    try:
+        # Load CV Disease Model and Scaler
+        cv_model = joblib.load("models/cv.pkl")
+        cv_scaler = joblib.load("models/cv_scaler.pkl")
+        print("✅ CV Disease model and scaler loaded successfully!")
+    except FileNotFoundError:
+        print("⚠️ Warning: CV Disease model or scaler file not found!")
+    
+    try:
+        # Load Eye Disease Model
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        eye_model = models.resnet18(weights=None)
+        eye_model.fc = nn.Linear(eye_model.fc.in_features, 5)  # 5 classes
+        eye_model = eye_model.to(device)
+        
+        checkpoint = torch.load("models/eye.pth", map_location=device, weights_only=False)
+        eye_model.load_state_dict(checkpoint['model_state_dict'])
+        eye_model.eval()
+        
+        # Load class names
+        if 'class_names' in checkpoint:
+            eye_class_names = checkpoint['class_names']
+        else:
+            eye_class_names = ["Cataract", "Diabetic_Retinopathy", "Glaucoma", "Normal", "Other"]
+        
+        # Define transforms
+        eye_transform = transforms.Compose([
+            transforms.Resize((224, 224)),
+            transforms.ToTensor(),
+            transforms.Normalize([0.485, 0.456, 0.406],
+                               [0.229, 0.224, 0.225])
+        ])
+        
+        print("✅ Eye Disease model loaded successfully!")
+        print(f"Eye Disease classes: {eye_class_names}")
+        
+    except FileNotFoundError:
+        print("⚠️ Warning: Eye Disease model file not found!")
+    except Exception as e:
+        print(f"⚠️ Warning: Error loading Eye Disease model: {str(e)}")
 
 # Load models when app starts
 load_models()
@@ -65,6 +117,16 @@ def covid_page():
 def cardiovascular_page():
     """Render cardiovascular disease prediction page"""
     return render_template("cardiovascular.html")
+
+@app.route("/cv")
+def cv_page():
+    """Render CV disease risk assessment page"""
+    return render_template("cv.html")
+
+@app.route("/eye")
+def eye_page():
+    """Render eye disease detection page"""
+    return render_template("eye.html")
 
 @app.route("/lung-cancer/predict", methods=["POST"])
 def predict_lung_cancer():
@@ -328,6 +390,185 @@ def predict_cardiovascular():
         import traceback
         traceback.print_exc()  # This will print the full stack trace
         return jsonify({"error": "Internal server error", "prediction": "Error"}), 500
+
+@app.route('/cv/predict', methods=['POST'])
+def predict_cv():
+    """Handle CV Disease prediction requests"""
+    try:
+        if cv_model is None or cv_scaler is None:
+            return jsonify({
+                "error": "CV Disease model not loaded",
+                "prediction": "Error: Model file not found"
+            }), 500
+
+        data = request.get_json()
+        if not data:
+            return jsonify({
+                "error": "No JSON data received",
+                "prediction": "Error: Invalid request format"
+            }), 400
+
+        # Required fields for CV model based on your form
+        required_fields = [
+            "age", "gender", "height", "weight", "ap_hi", "ap_lo",
+            "cholesterol", "gluc", "smoke", "alco", "active"
+        ]
+
+        # Check for missing fields
+        missing_fields = []
+        for field in required_fields:
+            if field not in data:
+                missing_fields.append(field)
+
+        if missing_fields:
+            return jsonify({
+                "error": f"Missing required fields: {', '.join(missing_fields)}",
+                "prediction": "Error: Missing fields"
+            }), 400
+
+        # Extract and validate features
+        try:
+            input_data = []
+            for field in required_fields:
+                value = int(data[field])
+                
+                # Basic validation
+                if field == "age" and (value < 1 or value > 120):
+                    raise ValueError(f"Age must be between 1 and 120, got {value}")
+                elif field == "gender" and value not in [1, 2]:
+                    raise ValueError(f"Gender must be 1 (female) or 2 (male), got {value}")
+                elif field == "height" and (value < 100 or value > 250):
+                    raise ValueError(f"Height must be between 100 and 250 cm, got {value}")
+                elif field == "weight" and (value < 20 or value > 300):
+                    raise ValueError(f"Weight must be between 20 and 300 kg, got {value}")
+                elif field in ["ap_hi", "ap_lo"] and (value < 40 or value > 250):
+                    raise ValueError(f"Blood pressure values must be between 40 and 250 mmHg, got {value}")
+                elif field in ["cholesterol", "gluc"] and value not in [1, 2, 3]:
+                    raise ValueError(f"{field} must be 1, 2, or 3, got {value}")
+                elif field in ["smoke", "alco", "active"] and value not in [0, 1]:
+                    raise ValueError(f"{field} must be 0 or 1, got {value}")
+                
+                input_data.append(value)
+
+        except ValueError as e:
+            return jsonify({
+                "error": f"Invalid input data: {str(e)}",
+                "prediction": "Error: Invalid input values"
+            }), 400
+
+        # Convert to DataFrame with exact feature names used in training
+        input_df = pd.DataFrame([input_data], columns=required_fields)
+        
+        # Scale the input
+        input_scaled = cv_scaler.transform(input_df)
+        
+        # Make prediction
+        prediction = cv_model.predict(input_scaled)[0]
+        probability = cv_model.predict_proba(input_scaled)[0][1]  # Probability of class 1 (disease)
+        
+        # Format result
+        result = "HIGH RISK of Cardiovascular Disease" if prediction == 1 else "LOW RISK of Cardiovascular Disease"
+        
+        response = {
+            "prediction": result,
+            "risk_score": int(prediction),
+            "probability": round(float(probability), 4)
+        }
+        
+        return jsonify(response)
+        
+    except Exception as e:
+        print(f"Unexpected error in CV prediction: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            "error": "Internal server error",
+            "prediction": "Error: Unable to process prediction"
+        }), 500
+
+@app.route('/eye/predict', methods=['POST'])
+def predict_eye():
+    """Handle Eye Disease prediction requests"""
+    try:
+        if eye_model is None or eye_transform is None or eye_class_names is None:
+            return jsonify({
+                "error": "Eye Disease model not loaded",
+                "prediction": "Error: Model file not found"
+            }), 500
+
+        # Check if image file is present
+        if 'image' not in request.files:
+            return jsonify({
+                "error": "No image file provided",
+                "prediction": "Error: Missing image"
+            }), 400
+
+        file = request.files['image']
+        if file.filename == '':
+            return jsonify({
+                "error": "No image file selected",
+                "prediction": "Error: Empty filename"
+            }), 400
+
+        # Validate file type
+        allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'bmp'}
+        if not ('.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in allowed_extensions):
+            return jsonify({
+                "error": "Invalid file type. Please upload an image file (PNG, JPG, JPEG, GIF, BMP)",
+                "prediction": "Error: Invalid file type"
+            }), 400
+
+        try:
+            # Process the image
+            image = Image.open(file.stream).convert("RGB")
+            img_tensor = eye_transform(image).unsqueeze(0).to(torch.device("cuda" if torch.cuda.is_available() else "cpu"))
+
+            # Make prediction
+            with torch.no_grad():
+                outputs = eye_model(img_tensor)
+                probabilities = torch.nn.functional.softmax(outputs, dim=1)
+                _, predicted = outputs.max(1)
+                class_name = eye_class_names[predicted.item()]
+                confidence = probabilities[0][predicted.item()].item()
+
+            # Format result based on your original logic
+            if class_name.lower() == "normal":
+                result = "The eye is Normal ✅"
+            elif class_name.lower() == "other":
+                result = "The eye is affected by another disease (Other) ⚠"
+            else:
+                result = f"The eye is affected by {class_name} disease ⚠"
+
+            # Create probability distribution
+            prob_dist = {}
+            for i, class_name_item in enumerate(eye_class_names):
+                prob_dist[class_name_item] = round(float(probabilities[0][i].item()) * 100, 2)
+
+            response = {
+                "prediction": result,
+                "detected_class": class_name,
+                "confidence": round(float(confidence) * 100, 2),
+                "probability_distribution": prob_dist
+            }
+
+            return jsonify(response)
+
+        except Exception as e:
+            print(f"Error processing image: {str(e)}")
+            return jsonify({
+                "error": "Error processing image",
+                "prediction": "Error: Image processing failed"
+            }), 400
+
+    except Exception as e:
+        print(f"Unexpected error in eye disease prediction: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            "error": "Internal server error",
+            "prediction": "Error: Unable to process prediction"
+        }), 500
+
 @app.route("/health", methods=["GET"])
 def health_check():
     """Health check endpoint"""
@@ -336,7 +577,9 @@ def health_check():
         "models_loaded": {
             "lung_cancer": lung_model is not None,
             "covid": covid_model is not None and covid_scaler is not None,
-            "cardiovascular": heart_model is not None and heart_scaler is not None
+            "cardiovascular": heart_model is not None and heart_scaler is not None,
+            "cv_disease": cv_model is not None and cv_scaler is not None,
+            "eye_disease": eye_model is not None and eye_transform is not None
         },
         "message": "Medical Prediction Platform API is running"
     })
@@ -378,7 +621,9 @@ if __name__ == "__main__":
     print("Available Services:")
     print("  🫁 Lung Cancer Risk Prediction")
     print("  🦠 COVID-19 Assessment")
-    print("  ❤️  Cardiovascular Disease Prediction")
+    print("  ❤️  Cardiovascular Disease Prediction (Original)")
+    print("  💔 CV Disease Risk Assessment (New)")
+    print("  👁️  Eye Disease Detection")
     print("=" * 60)
     print("Navigate to http://127.0.0.1:5000 to access the application")
     print("Press Ctrl+C to stop the server")
