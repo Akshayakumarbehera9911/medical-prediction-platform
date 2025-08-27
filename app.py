@@ -11,6 +11,7 @@ from torchvision import transforms, models
 from PIL import Image
 import io
 import base64
+import warnings; warnings.filterwarnings("ignore")
 
 app = Flask(__name__)
 CORS(app)
