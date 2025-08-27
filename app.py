@@ -16,7 +16,7 @@ import warnings; warnings.filterwarnings("ignore")
 app = Flask(__name__)
 CORS(app)
 
-# Global variables for models
+# Global variables for models - initially None
 lung_model = None
 covid_model = None
 covid_scaler = None
@@ -28,76 +28,95 @@ eye_model = None
 eye_transform = None
 eye_class_names = None
 
-def load_models():
-    """Load all ML models on startup"""
-    global lung_model, covid_model, covid_scaler, heart_model, heart_scaler, cv_model, cv_scaler, eye_model, eye_transform, eye_class_names
-    
-    try:
-        # Load Lung Cancer Model
-        lung_model = joblib.load("models/lung_cancer_model.pkl")
-        print("✅ Lung Cancer model loaded successfully!")
-    except FileNotFoundError:
-        print("⚠️ Warning: Lung Cancer model file not found!")
-    
-    try:
-        # Load COVID-19 Model and Scaler
-        covid_model = joblib.load("models/covid_model.pkl")
-        covid_scaler = joblib.load("models/covid_scaler.pkl")
-        print("✅ COVID-19 model and scaler loaded successfully!")
-    except FileNotFoundError:
-        print("⚠️ Warning: COVID-19 model or scaler file not found!")
-    
-    try:
-        # Load Heart Disease Model and Scaler
-        heart_model = joblib.load("models/heart_disease_model.pkl")
-        heart_scaler = joblib.load("models/heart_scaler.pkl")
-        print("✅ Heart Disease model and scaler loaded successfully!")
-    except FileNotFoundError:
-        print("⚠️ Warning: Heart Disease model or scaler file not found!")
-    
-    try:
-        # Load CV Disease Model and Scaler
-        cv_model = joblib.load("models/cv.pkl")
-        cv_scaler = joblib.load("models/cv_scaler.pkl")
-        print("✅ CV Disease model and scaler loaded successfully!")
-    except FileNotFoundError:
-        print("⚠️ Warning: CV Disease model or scaler file not found!")
-    
-    try:
-        # Load Eye Disease Model
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        eye_model = models.resnet18(weights=None)
-        eye_model.fc = nn.Linear(eye_model.fc.in_features, 5)  # 5 classes
-        eye_model = eye_model.to(device)
-        
-        checkpoint = torch.load("models/eye.pth", map_location=device, weights_only=False)
-        eye_model.load_state_dict(checkpoint['model_state_dict'])
-        eye_model.eval()
-        
-        # Load class names
-        if 'class_names' in checkpoint:
-            eye_class_names = checkpoint['class_names']
-        else:
-            eye_class_names = ["Cataract", "Diabetic_Retinopathy", "Glaucoma", "Normal", "Other"]
-        
-        # Define transforms
-        eye_transform = transforms.Compose([
-            transforms.Resize((224, 224)),
-            transforms.ToTensor(),
-            transforms.Normalize([0.485, 0.456, 0.406],
-                               [0.229, 0.224, 0.225])
-        ])
-        
-        print("✅ Eye Disease model loaded successfully!")
-        print(f"Eye Disease classes: {eye_class_names}")
-        
-    except FileNotFoundError:
-        print("⚠️ Warning: Eye Disease model file not found!")
-    except Exception as e:
-        print(f"⚠️ Warning: Error loading Eye Disease model: {str(e)}")
+def get_lung_model():
+    """Lazy load lung cancer model"""
+    global lung_model
+    if lung_model is None:
+        try:
+            lung_model = joblib.load("models/lung_cancer_model.pkl")
+            print("✅ Lung Cancer model loaded successfully!")
+        except FileNotFoundError:
+            print("⚠️ Warning: Lung Cancer model file not found!")
+            return None
+    return lung_model
 
-# Load models when app starts
-load_models()
+def get_covid_models():
+    """Lazy load COVID-19 model and scaler"""
+    global covid_model, covid_scaler
+    if covid_model is None or covid_scaler is None:
+        try:
+            covid_model = joblib.load("models/covid_model.pkl")
+            covid_scaler = joblib.load("models/covid_scaler.pkl")
+            print("✅ COVID-19 model and scaler loaded successfully!")
+        except FileNotFoundError:
+            print("⚠️ Warning: COVID-19 model or scaler file not found!")
+            return None, None
+    return covid_model, covid_scaler
+
+def get_heart_models():
+    """Lazy load heart disease model and scaler"""
+    global heart_model, heart_scaler
+    if heart_model is None or heart_scaler is None:
+        try:
+            heart_model = joblib.load("models/heart_disease_model.pkl")
+            heart_scaler = joblib.load("models/heart_scaler.pkl")
+            print("✅ Heart Disease model and scaler loaded successfully!")
+        except FileNotFoundError:
+            print("⚠️ Warning: Heart Disease model or scaler file not found!")
+            return None, None
+    return heart_model, heart_scaler
+
+def get_cv_models():
+    """Lazy load CV disease model and scaler"""
+    global cv_model, cv_scaler
+    if cv_model is None or cv_scaler is None:
+        try:
+            cv_model = joblib.load("models/cv.pkl")
+            cv_scaler = joblib.load("models/cv_scaler.pkl")
+            print("✅ CV Disease model and scaler loaded successfully!")
+        except FileNotFoundError:
+            print("⚠️ Warning: CV Disease model or scaler file not found!")
+            return None, None
+    return cv_model, cv_scaler
+
+def get_eye_model():
+    """Lazy load eye disease model"""
+    global eye_model, eye_transform, eye_class_names
+    if eye_model is None or eye_transform is None or eye_class_names is None:
+        try:
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            eye_model = models.resnet18(weights=None)
+            eye_model.fc = nn.Linear(eye_model.fc.in_features, 5)  # 5 classes
+            eye_model = eye_model.to(device)
+            
+            checkpoint = torch.load("models/eye.pth", map_location=device, weights_only=False)
+            eye_model.load_state_dict(checkpoint['model_state_dict'])
+            eye_model.eval()
+            
+            # Load class names
+            if 'class_names' in checkpoint:
+                eye_class_names = checkpoint['class_names']
+            else:
+                eye_class_names = ["Cataract", "Diabetic_Retinopathy", "Glaucoma", "Normal", "Other"]
+            
+            # Define transforms
+            eye_transform = transforms.Compose([
+                transforms.Resize((224, 224)),
+                transforms.ToTensor(),
+                transforms.Normalize([0.485, 0.456, 0.406],
+                                   [0.229, 0.224, 0.225])
+            ])
+            
+            print("✅ Eye Disease model loaded successfully!")
+            print(f"Eye Disease classes: {eye_class_names}")
+            
+        except FileNotFoundError:
+            print("⚠️ Warning: Eye Disease model file not found!")
+            return None, None, None
+        except Exception as e:
+            print(f"⚠️ Warning: Error loading Eye Disease model: {str(e)}")
+            return None, None, None
+    return eye_model, eye_transform, eye_class_names
 
 @app.route("/")
 def home():
@@ -133,6 +152,7 @@ def eye_page():
 def predict_lung_cancer():
     """Handle lung cancer prediction requests"""
     try:
+        lung_model = get_lung_model()
         if lung_model is None:
             return jsonify({
                 "error": "Lung cancer model not loaded",
@@ -223,6 +243,7 @@ def predict_lung_cancer():
 def predict_covid():
     """Handle COVID-19 prediction requests"""
     try:
+        covid_model, covid_scaler = get_covid_models()
         if covid_model is None or covid_scaler is None:
             return jsonify({
                 "error": "COVID-19 model not loaded",
@@ -316,6 +337,7 @@ def predict_covid():
 @app.route('/cardiovascular/predict', methods=['POST'])
 def predict_cardiovascular():
     try:
+        heart_model, heart_scaler = get_heart_models()
         if heart_model is None or heart_scaler is None:
             return jsonify({"error": "Model not loaded", "prediction": "Error"}), 500
 
@@ -396,6 +418,7 @@ def predict_cardiovascular():
 def predict_cv():
     """Handle CV Disease prediction requests"""
     try:
+        cv_model, cv_scaler = get_cv_models()
         if cv_model is None or cv_scaler is None:
             return jsonify({
                 "error": "CV Disease model not loaded",
@@ -491,6 +514,7 @@ def predict_cv():
 def predict_eye():
     """Handle Eye Disease prediction requests"""
     try:
+        eye_model, eye_transform, eye_class_names = get_eye_model()
         if eye_model is None or eye_transform is None or eye_class_names is None:
             return jsonify({
                 "error": "Eye Disease model not loaded",
@@ -536,9 +560,9 @@ def predict_eye():
             if class_name.lower() == "normal":
                 result = "The eye is Normal ✅"
             elif class_name.lower() == "other":
-                result = "The eye is affected by another disease (Other) ⚠"
+                result = "The eye is affected by another disease (Other) ⚠️"
             else:
-                result = f"The eye is affected by {class_name} disease ⚠"
+                result = f"The eye is affected by {class_name} disease ⚠️"
 
             # Create probability distribution
             prob_dist = {}
@@ -622,9 +646,9 @@ if __name__ == "__main__":
     print("Available Services:")
     print("  🫁 Lung Cancer Risk Prediction")
     print("  🦠 COVID-19 Assessment")
-    print("  ❤️  Cardiovascular Disease Prediction (Original)")
+    print("  ❤️ Cardiovascular Disease Prediction (Original)")
     print("  💔 CV Disease Risk Assessment (New)")
-    print("  👁️  Eye Disease Detection")
+    print("  👁️ Eye Disease Detection")
     print("=" * 60)
     print("Navigate to http://127.0.0.1:5000 to access the application")
     print("Press Ctrl+C to stop the server")
