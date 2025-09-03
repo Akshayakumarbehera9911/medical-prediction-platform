@@ -746,3 +746,56 @@ font-size: 0.8rem;
   line-height: 1.4;
   color: var(--text-primary);
 }
+/* Replace the .health-warning CSS rule */
+.health-warning {
+    background: rgba(255, 193, 7, 0.15) !important;
+    border: 1px solid rgba(255, 193, 7, 0.5) !important;
+    border-radius: 8px !important;
+    padding: 0.75rem 1rem !important;
+    margin-top: 0.75rem !important;
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+    color: #f57c00 !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    animation: fadeIn 0.3s ease !important;
+    display: block !important;
+    position: relative !important;
+    z-index: 100 !important;
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.2) !important;
+    line-height: 1.4 !important;
+}
+/* Blocking invalid field styling */
+.form-group input.blocking-invalid,
+.form-group select.blocking-invalid {
+    border-color: #ff5722 !important;
+    background: rgba(255, 87, 34, 0.1) !important;
+    box-shadow: 0 0 0 3px rgba(255, 87, 34, 0.3) !important;
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+/* Error message styling */
+.error-message {
+    background: rgba(255, 87, 34, 0.15) !important;
+    border: 1px solid rgba(255, 87, 34, 0.5) !important;
+    border-radius: 8px !important;
+    padding: 1rem 1.5rem !important;
+    margin: 1rem 0 !important;
+    color: #d84315 !important;
+    font-weight: 600 !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    box-shadow: 0 4px 15px rgba(255, 87, 34, 0.2) !important;
+    animation: slideInUp 0.3s ease !important;
+    position: relative !important;
+    z-index: 100 !important;
+}
+
+.error-message strong {
+    color: #bf360c !important;
+}

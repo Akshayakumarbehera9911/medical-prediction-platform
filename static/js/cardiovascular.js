@@ -8,6 +8,15 @@ document.addEventListener('DOMContentLoaded', function () {
     const loadingSpinner = document.querySelector('#loading');
     const resultContainer = document.querySelector('#result-container');
     const progressBar = document.querySelector('.form-progress-bar');
+    // Helper function to get field values (handles both regular inputs and radio buttons)
+    function getFieldValue(fieldName) {
+        const field = document.getElementById(fieldName);
+        if (field && field.value !== '') return field.value;
+
+        // For radio buttons, get the checked value
+        const radio = document.querySelector(`input[name="${fieldName}"]:checked`);
+        return radio ? radio.value : '';
+    }
 
     console.log('Elements found:', {
         form: !!form,
@@ -19,16 +28,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Form field definitions with validation rules 
     const formFields = {
-        age: { type: 'number', min: 1, max: 120, unit: 'years' },
+        age: { type: 'number', min: 20, max: 100, unit: 'years' },
         sex: { type: 'select', options: { 0: 'Female', 1: 'Male' } },
         chest_pain_type: { type: 'select', options: { 0: 'Typical Angina', 1: 'Atypical Angina', 2: 'Non-Anginal Pain', 3: 'Asymptomatic' } },
-        resting_bp: { type: 'number', min: 80, max: 250, unit: 'mmHg' },
-        cholesterol: { type: 'number', min: 100, max: 600, unit: 'mg/dL' },
+        resting_bp: { type: 'number', min: 80, max: 220, unit: 'mmHg' },
+        cholesterol: { type: 'number', min: 80, max: 400, unit: 'mg/dL' },
         fasting_bs: { type: 'select', options: { 0: 'Normal (<120 mg/dL)', 1: 'High (≥120 mg/dL)' } },
         rest_ecg: { type: 'select', options: { 0: 'Normal', 1: 'ST-T Wave Abnormality', 2: 'Left Ventricular Hypertrophy' } },
-        max_heart_rate: { type: 'number', min: 60, max: 220, unit: 'bpm' },
+        max_heart_rate: { type: 'number', min: 50, max: 200, unit: 'bpm' },
         exercise_angina: { type: 'select', options: { 0: 'No', 1: 'Yes' } },
-        oldpeak: { type: 'number', min: 0, max: 10, step: 0.1, unit: 'ST depression' },
+        oldpeak: { type: 'number', min: 0, max: 6, step: 0.1, unit: 'ST depression' },
         slope: { type: 'select', options: { 0: 'Upsloping', 1: 'Flat', 2: 'Downsloping' } },
         major_vessels: { type: 'select', options: { 0: '0 vessels', 1: '1 vessel', 2: '2 vessels', 3: '3 vessels' } },
         thal: { type: 'select', options: { 1: 'Fixed Defect', 2: 'Normal', 3: 'Reversible Defect' } }
@@ -36,6 +45,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Initialize form
     initializeForm();
+    // Initialize radio button handlers
+    ['sex', 'chest_pain_type', 'fasting_bs', 'rest_ecg', 'exercise_angina', 'slope', 'major_vessels', 'thal'].forEach(function (name) {
+        const radios = document.querySelectorAll('input[name="' + name + '"]');
+        radios.forEach(function (radio) {
+            radio.addEventListener('change', function () {
+                // Trigger validation and progress updates
+                validateRadioField(this);
+                updateProgress();
+                updateSubmitButton();
+            });
+        });
+    });
+
+    // New function to validate radio fields
+    function validateRadioField(radioElement) {
+        const fieldName = radioElement.name;
+        const value = parseFloat(radioElement.value);
+
+        // Show health warnings for radio button selections
+        if (fieldName === 'fasting_bs' && value === 1) {
+            showHealthWarning(radioElement, value, fieldName);
+        }
+        // Add other radio-specific warnings as needed
+    }
 
     function initializeForm() {
         console.log('🔧 Initializing form...');
@@ -77,31 +110,130 @@ document.addEventListener('DOMContentLoaded', function () {
     function validateField(field) {
         const fieldName = field.name || field.id;
         const fieldConfig = formFields[fieldName];
-        const value = parseFloat(field.value);
+
         if (!fieldConfig) return false;
 
-        // Remove previous validation classes 
-        field.classList.remove('valid', 'invalid');
-        if (field.value === '') {
+        // Remove previous validation classes and warnings
+        field.classList.remove('valid', 'invalid', 'blocking-invalid');
+
+        if (field.value === '' || field.value === null || field.value === undefined) {
             return false;
         }
 
+        const value = parseFloat(field.value);
+
         // Type-specific validation 
         if (fieldConfig.type === 'number') {
+            // ALWAYS show health warnings first - regardless of validity
+            showHealthWarning(field, value, fieldName);
+
+            // Check for blocking conditions (values that should prevent submission)
+            let isBlocking = false;
+            if (fieldName === 'age' && (value < 20 || value > 100)) isBlocking = true;
+            if (fieldName === 'resting_bp' && (value >= 250 || value < 60)) isBlocking = true;
+            if (fieldName === 'cholesterol' && (value >= 500 || value < 50)) isBlocking = true;
+            if (fieldName === 'max_heart_rate' && (value >= 250 || value < 40)) isBlocking = true;
+            if (fieldName === 'oldpeak' && value >= 10) isBlocking = true;
+
+            if (isBlocking) {
+                field.classList.add('blocking-invalid');
+                return false;
+            }
+
+            // Regular validation for display purposes
             if (isNaN(value) || value < fieldConfig.min || value > fieldConfig.max) {
                 field.classList.add('invalid');
                 return false;
             }
         }
+
         field.classList.add('valid');
         return true;
     }
+    function submitPrediction() {
+        console.log('🚀 Submitting prediction...');
 
+        // Show loading
+        if (loadingSpinner) {
+            loadingSpinner.classList.add('show');
+        }
+
+        // Hide previous results
+        if (resultContainer) {
+            resultContainer.classList.remove('show');
+            resultContainer.style.display = 'none';
+        }
+
+        // Collect form data using helper function
+        const formData = {};
+        Object.keys(formFields).forEach(fieldName => {
+            formData[fieldName] = getFieldValue(fieldName);
+        });
+
+        console.log('Form data:', formData);
+
+        // Simulate API call (replace with actual endpoint)
+        setTimeout(() => {
+            // Hide loading
+            if (loadingSpinner) {
+                loadingSpinner.classList.remove('show');
+            }
+
+            // Mock result - replace with actual API response
+            const mockResult = {
+                prediction: Math.random() > 0.5 ? 'HIGH RISK' : 'LOW RISK',
+                probability: Math.random(),
+                risk_score: (Math.random() * 100).toFixed(1)
+            };
+
+            displayResults(mockResult, formData);
+        }, 2000);
+    }
+    function showHealthWarning(field, value, fieldName) {
+        // Remove existing warnings
+        const fieldParent = field.parentNode;
+        const existingWarnings = fieldParent.querySelectorAll('.health-warning');
+        existingWarnings.forEach(warning => warning.remove());
+
+        let warningMessage = '';
+
+        if (fieldName === 'age') {
+            if (value < 20) warningMessage = '⚠️ Too young for assessment - Must be 20+ to submit';
+            else if (value > 100) warningMessage = '⚠️ Age too high for accurate assessment - Must be ≤100';
+            else if (value > 75) warningMessage = 'Advanced age - Regular cardiac monitoring recommended';
+        } else if (fieldName === 'resting_bp') {
+            if (value >= 250) warningMessage = '🚨 Extremely high BP - Value too high for assessment';
+            else if (value >= 180) warningMessage = 'Very high blood pressure - Seek immediate medical attention';
+            else if (value >= 140) warningMessage = 'High blood pressure - Consult your doctor';
+            else if (value < 60) warningMessage = '🚨 Extremely low BP - Value too low for assessment';
+            else if (value < 90) warningMessage = 'Low blood pressure - Monitor closely';
+        } else if (fieldName === 'cholesterol') {
+            if (value >= 500) warningMessage = '🚨 Extremely high cholesterol - Value too high for assessment';
+            else if (value >= 240) warningMessage = 'High cholesterol - Medical evaluation needed';
+            else if (value < 50) warningMessage = '🚨 Extremely low cholesterol - Value too low for assessment';
+            else if (value < 120) warningMessage = 'Very low cholesterol - Discuss with doctor';
+        } else if (fieldName === 'max_heart_rate') {
+            if (value >= 250) warningMessage = '🚨 Extremely high heart rate - Value too high for assessment';
+            else if (value >= 180) warningMessage = 'Very high heart rate - Medical attention needed';
+            else if (value < 40) warningMessage = '🚨 Extremely low heart rate - Value too low for assessment';
+            else if (value < 60) warningMessage = 'Very slow heart rate - Consult cardiologist';
+        } else if (fieldName === 'oldpeak') {
+            if (value >= 10) warningMessage = '🚨 ST depression too high - Value outside assessment range';
+            else if (value >= 4) warningMessage = 'Significant ST depression - Medical evaluation required';
+        }
+
+        if (warningMessage) {
+            const warningDiv = document.createElement('div');
+            warningDiv.className = 'health-warning';
+            warningDiv.innerHTML = warningMessage;
+            field.insertAdjacentElement('afterend', warningDiv);
+        }
+    }
     function updateProgress() {
         const totalFields = Object.keys(formFields).length;
         const completedFields = Object.keys(formFields).filter(fieldName => {
-            const field = document.getElementById(fieldName);
-            return field && field.value !== '' && !field.classList.contains('invalid');
+            const value = getFieldValue(fieldName);
+            return value !== '';
         }).length;
         const progress = (completedFields / totalFields) * 100;
         if (progressBar) {
@@ -110,24 +242,41 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function updateSubmitButton() {
-        const allValid = Object.keys(formFields).every(fieldName => {
-            const field = document.getElementById(fieldName);
-            return field && field.value !== '' && !field.classList.contains('invalid');
+        if (!submitBtn) return;
+
+        // NEVER disable the button
+        submitBtn.disabled = false;
+
+        // Check completion using helper function
+        const allComplete = Object.keys(formFields).every(fieldName => {
+            const value = getFieldValue(fieldName);
+            return value !== '';
         });
-        if (submitBtn) {
-            submitBtn.disabled = !allValid;
-            if (allValid) {
-                submitBtn.textContent = 'Assess Cardiovascular Risk';
-            } else {
-                submitBtn.textContent = 'Complete all fields to continue';
-            }
+
+        // Check for blocking errors
+        const hasBlockingErrors = Object.keys(formFields).some(fieldName => {
+            const field = document.getElementById(fieldName);
+            return field && field.classList.contains('blocking-invalid');
+        });
+
+        if (hasBlockingErrors) {
+            submitBtn.textContent = '⚠️ Review Values & Submit';
+            submitBtn.style.background = '#ff9800';
+        } else if (allComplete) {
+            submitBtn.textContent = '💗 Assess Heart Disease Risk';
+            submitBtn.style.background = '';
+        } else {
+            submitBtn.textContent = 'Complete all fields to continue';
+            submitBtn.style.background = '#ccc';
         }
     }
 
     function validateForm() {
         console.log('📋 Validating form...');
         let isValid = true;
+        let hasBlockingErrors = false;
         const errors = [];
+        const blockingErrors = [];
 
         Object.keys(formFields).forEach(fieldName => {
             const field = document.getElementById(fieldName);
@@ -144,74 +293,36 @@ document.addEventListener('DOMContentLoaded', function () {
                 errors.push(`${fieldName} has an invalid value`);
                 isValid = false;
             }
+
+            // Check for blocking errors
+            if (field.classList.contains('blocking-invalid')) {
+                blockingErrors.push(fieldName);
+                hasBlockingErrors = true;
+            }
         });
 
+        if (hasBlockingErrors) {
+            // Scroll to the first blocking error
+            const firstBlockingField = document.getElementById(blockingErrors[0]);
+            if (firstBlockingField) {
+                firstBlockingField.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+                firstBlockingField.focus();
+
+                // Show specific error for blocking fields
+                showError('Please correct the highlighted values before proceeding. Some values are outside acceptable ranges for medical assessment.');
+            }
+            return false;
+        }
+
         if (!isValid) {
-            showError('Please correct the following errors:\\n• ' + errors.join('\\n• '));
+            showError('Please correct the following errors:\n• ' + errors.join('\n• '));
         }
 
         console.log('Validation result:', isValid);
         return isValid;
-    }
-
-    async function submitPrediction() {
-        console.log('🚀 Submitting prediction...');
-
-        // Show loading state 
-        if (submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Analyzing Risk...';
-        }
-        if (loadingSpinner) {
-            loadingSpinner.style.display = 'block';
-        }
-        if (resultContainer) {
-            resultContainer.style.display = 'none';
-            resultContainer.classList.remove('show');
-        }
-
-        // Prepare form data 
-        const formData = {};
-        Object.keys(formFields).forEach(fieldName => {
-            const field = document.getElementById(fieldName);
-            if (field) {
-                formData[fieldName] = formFields[fieldName].type === 'number' ? parseFloat(field.value) : parseInt(field.value);
-            }
-        });
-
-        console.log('Form data to send:', formData);
-
-        try {
-            console.log('📡 Sending request to /cardiovascular/predict');
-            const response = await fetch('/cardiovascular/predict', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData)
-            });
-
-            const result = await response.json();
-            console.log('📥 Response received:', result);
-
-            if (response.ok) {
-                displayResults(result, formData);
-            } else {
-                showError(result.error || 'An error occurred during prediction');
-            }
-        } catch (error) {
-            console.error('💥 Prediction error:', error);
-            showError('Network error. Please check your connection and try again.');
-        } finally {
-            // Hide loading state 
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                updateSubmitButton();
-            }
-            if (loadingSpinner) {
-                loadingSpinner.style.display = 'none';
-            }
-        }
     }
 
     function displayResults(result, formData) {
@@ -235,7 +346,6 @@ document.addEventListener('DOMContentLoaded', function () {
         <h3>${isHighRisk ? 'HIGH RISK of Heart Disease' : 'LOW RISK of Heart Disease'}</h3>
         
         <div class="risk-metrics">
-            <p><strong>Risk Score:</strong> ${result.risk_score}</p>
             <p><strong>Risk Probability:</strong> ${(result.probability * 100).toFixed(1)}%</p>
         </div>
         
