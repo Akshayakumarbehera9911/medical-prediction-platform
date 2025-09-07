@@ -59,7 +59,7 @@
 
 <script>
 function handleCredentialResponse(response) {
-    console.log("Google Sign-In successful");
+    console.log("Google Sign-In response received");
     
     // Show loading state
     document.getElementById('loadingOverlay').style.display = 'flex';
@@ -69,29 +69,46 @@ function handleCredentialResponse(response) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'Accept': 'application/json'
         },
         body: JSON.stringify({
             credential: response.credential
         })
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
+        console.log("Server response:", data);
         if (data.success) {
             if (data.needs_profile_completion) {
-                window.location.href = data.redirect;
+                window.location.href = data.redirect || '/complete-profile';
             } else {
                 window.location.href = data.redirect || '/dashboard';
             }
         } else {
+            console.error('Sign in failed:', data.error);
             alert('Sign in failed: ' + (data.error || 'Unknown error'));
             document.getElementById('loadingOverlay').style.display = 'none';
         }
     })
     .catch((error) => {
         console.error('Error:', error);
-        alert('Sign in failed. Please try again.');
+        alert('Sign in failed. Please try again. Error: ' + error.message);
         document.getElementById('loadingOverlay').style.display = 'none';
     });
 }
+
+// Initialize Google Sign-In when the page loads
+window.onload = function() {
+    console.log("Initializing Google Sign-In");
+    // Check if Google Sign-In library is loaded
+    if (typeof google === 'undefined') {
+        console.error("Google Sign-In library failed to load. Check your internet connection and CSP settings.");
+    }
+};
 </script>
 {% endblock %}
