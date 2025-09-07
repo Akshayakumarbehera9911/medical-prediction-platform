@@ -276,8 +276,29 @@ def google_auth():
         
         print(f"Google auth successful for: {email}")
         
+        # Check database connection before querying
+        try:
+            db.session.execute(db.text('SELECT 1'))
+            db.session.commit()
+        except Exception as db_error:
+            print(f"Database connection failed during auth: {str(db_error)}")
+            return jsonify({"error": "Database temporarily unavailable"}), 503
+        
         # Check if user exists by google_id
-        user = User.query.filter_by(google_id=google_id).first()
+        try:
+            user = User.query.filter_by(google_id=google_id).first()
+        except Exception as query_error:
+            print(f"Database query failed: {str(query_error)}")
+            # Try to reinitialize database
+            print("Attempting to reinitialize database...")
+            if init_database():
+                try:
+                    user = User.query.filter_by(google_id=google_id).first()
+                except Exception as retry_error:
+                    print(f"Retry failed: {str(retry_error)}")
+                    return jsonify({"error": "Database initialization failed"}), 500
+            else:
+                return jsonify({"error": "Database initialization failed"}), 500
         
         if user:
             # Existing user - login directly
@@ -285,7 +306,12 @@ def google_auth():
             return jsonify({"success": True, "redirect": url_for('dashboard')})
         
         # Check if user exists by email (account linking)
-        existing_user = User.query.filter_by(email=email).first()
+        try:
+            existing_user = User.query.filter_by(email=email).first()
+        except Exception as email_query_error:
+            print(f"Email query failed: {str(email_query_error)}")
+            existing_user = None
+        
         if existing_user:
             # Link Google account to existing user
             existing_user.google_id = google_id
@@ -304,9 +330,8 @@ def google_auth():
         
         return jsonify({"success": True, "needs_profile_completion": True, "redirect": url_for('complete_profile')})
         
-    except ValueError as e:
-        print(f"Google token verification failed: {str(e)}")
-        return jsonify({"error": "Invalid Google token"}), 400
+    except ValueError:
+        return jsonify({"error": "Invalid Google token"}), 401
     except Exception as e:
         print(f"Google auth error: {str(e)}")
         return jsonify({"error": "Authentication failed"}), 500
@@ -402,6 +427,21 @@ def logout():  # Remove @login_required
     
     flash('You have been logged out successfully.', 'info')
     return response
+@app.route("/admin/reset-database")
+def reset_database():
+    """Manual database reset - USE WITH CAUTION"""
+    try:
+        # Only allow in development or with special parameter
+        if os.environ.get('FLASK_ENV') != 'development' and request.args.get('confirm') != 'yes':
+            return jsonify({"error": "Not allowed"}), 403
+        
+        success = init_database()
+        if success:
+            return jsonify({"success": True, "message": "Database reset successfully"})
+        else:
+            return jsonify({"error": "Database reset failed"}), 500
+    except Exception as e:
+        return jsonify({"error": f"Reset failed: {str(e)}"}), 500
 
 # ALL EXISTING ROUTES REMAIN UNCHANGED (just adding history saving)
 @app.route("/")
@@ -976,27 +1016,39 @@ def internal_error(error):
 
 # NEW: Initialize database on first run - IMPROVED VERSION
 def init_database():
-    """Initialize database tables with better error handling"""
+    """Initialize database tables with PostgreSQL compatibility"""
     try:
         with app.app_context():
             print("🔄 Starting database initialization...")
             
-            # Check if we can connect to the database
+            # Test basic connection
             try:
                 db.session.execute(db.text('SELECT 1'))
+                db.session.commit()
                 print("✅ Database connection successful!")
             except Exception as conn_error:
                 print(f"❌ Database connection failed: {str(conn_error)}")
                 return False
             
-            # Check if tables already exist
+            # Check if tables exist - PostgreSQL compatible
             try:
-                existing_tables = db.session.execute(db.text("""
-                    SELECT table_name 
-                    FROM information_schema.tables 
-                    WHERE table_schema = 'public'
-                """)).fetchall()
+                if os.environ.get('DATABASE_URL'):
+                    # Production PostgreSQL
+                    table_query = """
+                        SELECT table_name 
+                        FROM information_schema.tables 
+                        WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
+                    """
+                else:
+                    # Local MySQL
+                    mysql_db = os.environ.get('MYSQL_DB', 'medipredict_db')
+                    table_query = f"""
+                        SELECT table_name 
+                        FROM information_schema.tables 
+                        WHERE table_schema = '{mysql_db}'
+                    """
                 
+                existing_tables = db.session.execute(db.text(table_query)).fetchall()
                 table_names = [row[0] for row in existing_tables]
                 print(f"📋 Existing tables: {table_names}")
                 
@@ -1007,22 +1059,26 @@ def init_database():
             except Exception as check_error:
                 print(f"⚠️ Could not check existing tables: {str(check_error)}")
             
+            # Force drop and recreate tables
+            print("🔨 Dropping existing tables and creating new ones...")
+            try:
+                db.drop_all()
+                db.session.commit()
+                print("🗑️ Dropped all existing tables")
+            except Exception as drop_error:
+                print(f"⚠️ Error dropping tables: {str(drop_error)}")
+            
             # Create all tables
-            print("🔨 Creating database tables...")
             db.create_all()
+            db.session.commit()
+            print("🏗️ Created all tables")
             
             # Verify tables were created
             try:
-                new_tables = db.session.execute(db.text("""
-                    SELECT table_name 
-                    FROM information_schema.tables 
-                    WHERE table_schema = 'public'
-                """)).fetchall()
-                
+                new_tables = db.session.execute(db.text(table_query)).fetchall()
                 new_table_names = [row[0] for row in new_tables]
                 print(f"📋 Tables after creation: {new_table_names}")
                 
-                # Check for required tables
                 required_tables = ['users', 'prediction_history']
                 missing_tables = [table for table in required_tables if table not in new_table_names]
                 
@@ -1031,44 +1087,10 @@ def init_database():
                     return False
                 else:
                     print("✅ All required tables created successfully!")
+                    return True
                 
             except Exception as verify_error:
-                print(f"⚠️ Could not verify table creation: {str(verify_error)}")
-            
-            # Test table structure
-            try:
-                # Test users table structure
-                users_columns = db.session.execute(db.text("""
-                    SELECT column_name, data_type 
-                    FROM information_schema.columns 
-                    WHERE table_name = 'users' AND table_schema = 'public'
-                    ORDER BY ordinal_position
-                """)).fetchall()
-                
-                print(f"👥 Users table columns: {[(col[0], col[1]) for col in users_columns]}")
-                
-                # Test prediction_history table structure
-                history_columns = db.session.execute(db.text("""
-                    SELECT column_name, data_type 
-                    FROM information_schema.columns 
-                    WHERE table_name = 'prediction_history' AND table_schema = 'public'
-                    ORDER BY ordinal_position
-                """)).fetchall()
-                
-                print(f"📊 Prediction_history table columns: {[(col[0], col[1]) for col in history_columns]}")
-                
-            except Exception as structure_error:
-                print(f"⚠️ Could not verify table structure: {str(structure_error)}")
-            
-            # Final connection test
-            try:
-                db.session.commit()
-                print("✅ Database initialization completed successfully!")
-                return True
-                
-            except Exception as commit_error:
-                print(f"❌ Database commit failed: {str(commit_error)}")
-                db.session.rollback()
+                print(f"❌ Could not verify table creation: {str(verify_error)}")
                 return False
             
     except Exception as e:
@@ -1076,12 +1098,30 @@ def init_database():
         print(f"Error type: {type(e).__name__}")
         import traceback
         traceback.print_exc()
+        try:
+            db.session.rollback()
+        except:
+            pass
         return False
 
 # Main application entry point
 if __name__ == "__main__":
-    # Initialize database on startup
-    init_database()
+    # Initialize database on startup with retry
+    print("🚀 Starting MediPredict Platform...")
+    
+    max_retries = 3
+    for attempt in range(max_retries):
+        print(f"Database initialization attempt {attempt + 1}/{max_retries}")
+        if init_database():
+            print("✅ Database initialization successful!")
+            break
+        elif attempt < max_retries - 1:
+            print(f"❌ Attempt {attempt + 1} failed, retrying...")
+            import time
+            time.sleep(2)
+        else:
+            print("❌ All database initialization attempts failed!")
+            print("⚠️ Application starting anyway - database reset may be needed")
     
     # Get port from environment variable (for deployment)
     port = int(os.environ.get("PORT", 5000))
