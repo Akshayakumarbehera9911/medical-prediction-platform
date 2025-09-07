@@ -31,13 +31,12 @@ load_dotenv()
 
 app = Flask(__name__)
 CORS(app, 
-     origins=["http://127.0.0.1:5000", "http://localhost:5000", "https://accounts.google.com"], 
+     origins=["http://127.0.0.1:5000", "http://localhost:5000", "https://accounts.google.com", "https://medipredict-nvdw.onrender.com"], 
      supports_credentials=True,
      allow_headers=["Content-Type", "Authorization", "Accept", "Origin", "X-Requested-With"],
      methods=["GET", "POST", "OPTIONS"],
      expose_headers=["Content-Type", "Authorization"]
 )
-
 # NEW: Configuration
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'secrete-key-medipredict-kit-2024')
 def create_mysql_database_if_not_exists():
