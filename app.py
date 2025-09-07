@@ -411,31 +411,37 @@ def home():
     return render_template("index.html")
 
 @app.route("/lung-cancer")
+@login_required
 def lung_cancer_page():
     """Render lung cancer prediction page"""
     return render_template("lung_cancer.html")
 
 @app.route("/covid")
+@login_required
 def covid_page():
     """Render COVID-19 assessment page"""
     return render_template("covid.html")
 
 @app.route("/cardiovascular")
+@login_required
 def cardiovascular_page():
     """Render cardiovascular disease prediction page"""
     return render_template("cardiovascular.html")
 
 @app.route("/cv")
+@login_required
 def cv_page():
     """Render CV disease risk assessment page"""
     return render_template("cv.html")
 
 @app.route("/eye")
+@login_required
 def eye_page():
     """Render eye disease detection page"""
     return render_template("eye.html")
 
 @app.route("/lung-cancer/predict", methods=["POST"])
+@login_required
 def predict_lung_cancer():
     """Handle lung cancer prediction requests"""
     try:
@@ -530,6 +536,7 @@ def predict_lung_cancer():
         }), 500
 
 @app.route("/covid/predict", methods=["POST"])
+@login_required
 def predict_covid():
     """Handle COVID-19 prediction requests"""
     try:
@@ -628,6 +635,7 @@ def predict_covid():
         }), 500
 
 @app.route('/cardiovascular/predict', methods=['POST'])
+@login_required
 def predict_cardiovascular():
     try:
         heart_model, heart_scaler = get_heart_models()
@@ -710,6 +718,7 @@ def predict_cardiovascular():
         return jsonify({"error": "Internal server error", "prediction": "Error"}), 500
 
 @app.route('/cv/predict', methods=['POST'])
+@login_required
 def predict_cv():
     """Handle CV Disease prediction requests"""
     try:
@@ -807,6 +816,7 @@ def predict_cv():
         }), 500
 
 @app.route('/eye/predict', methods=['POST'])
+@login_required
 def predict_eye():
     """Handle eye disease prediction requests"""
     try:
