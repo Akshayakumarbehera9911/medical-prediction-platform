@@ -974,23 +974,109 @@ def internal_error(error):
     db.session.rollback()
     return render_template('errors/500.html'), 500
 
-# NEW: Initialize database on first run
+# NEW: Initialize database on first run - IMPROVED VERSION
 def init_database():
-    """Initialize database tables"""
+    """Initialize database tables with better error handling"""
     try:
         with app.app_context():
-            # Create all tables
-            db.create_all()
-            print("✅ Database tables created successfully!")
+            print("🔄 Starting database initialization...")
             
-            # Test database connection
-            db.session.execute(db.text('SELECT 1'))
-            db.session.commit()
-            print("✅ Database connection test successful!")
+            # Check if we can connect to the database
+            try:
+                db.session.execute(db.text('SELECT 1'))
+                print("✅ Database connection successful!")
+            except Exception as conn_error:
+                print(f"❌ Database connection failed: {str(conn_error)}")
+                return False
+            
+            # Check if tables already exist
+            try:
+                existing_tables = db.session.execute(db.text("""
+                    SELECT table_name 
+                    FROM information_schema.tables 
+                    WHERE table_schema = 'public'
+                """)).fetchall()
+                
+                table_names = [row[0] for row in existing_tables]
+                print(f"📋 Existing tables: {table_names}")
+                
+                if 'users' in table_names and 'prediction_history' in table_names:
+                    print("✅ All required tables already exist!")
+                    return True
+                    
+            except Exception as check_error:
+                print(f"⚠️ Could not check existing tables: {str(check_error)}")
+            
+            # Create all tables
+            print("🔨 Creating database tables...")
+            db.create_all()
+            
+            # Verify tables were created
+            try:
+                new_tables = db.session.execute(db.text("""
+                    SELECT table_name 
+                    FROM information_schema.tables 
+                    WHERE table_schema = 'public'
+                """)).fetchall()
+                
+                new_table_names = [row[0] for row in new_tables]
+                print(f"📋 Tables after creation: {new_table_names}")
+                
+                # Check for required tables
+                required_tables = ['users', 'prediction_history']
+                missing_tables = [table for table in required_tables if table not in new_table_names]
+                
+                if missing_tables:
+                    print(f"❌ Missing tables after creation: {missing_tables}")
+                    return False
+                else:
+                    print("✅ All required tables created successfully!")
+                
+            except Exception as verify_error:
+                print(f"⚠️ Could not verify table creation: {str(verify_error)}")
+            
+            # Test table structure
+            try:
+                # Test users table structure
+                users_columns = db.session.execute(db.text("""
+                    SELECT column_name, data_type 
+                    FROM information_schema.columns 
+                    WHERE table_name = 'users' AND table_schema = 'public'
+                    ORDER BY ordinal_position
+                """)).fetchall()
+                
+                print(f"👥 Users table columns: {[(col[0], col[1]) for col in users_columns]}")
+                
+                # Test prediction_history table structure
+                history_columns = db.session.execute(db.text("""
+                    SELECT column_name, data_type 
+                    FROM information_schema.columns 
+                    WHERE table_name = 'prediction_history' AND table_schema = 'public'
+                    ORDER BY ordinal_position
+                """)).fetchall()
+                
+                print(f"📊 Prediction_history table columns: {[(col[0], col[1]) for col in history_columns]}")
+                
+            except Exception as structure_error:
+                print(f"⚠️ Could not verify table structure: {str(structure_error)}")
+            
+            # Final connection test
+            try:
+                db.session.commit()
+                print("✅ Database initialization completed successfully!")
+                return True
+                
+            except Exception as commit_error:
+                print(f"❌ Database commit failed: {str(commit_error)}")
+                db.session.rollback()
+                return False
             
     except Exception as e:
         print(f"❌ Database initialization error: {str(e)}")
-        print("Make sure MySQL server is running and credentials are correct.")
+        print(f"Error type: {type(e).__name__}")
+        import traceback
+        traceback.print_exc()
+        return False
 
 # Main application entry point
 if __name__ == "__main__":
