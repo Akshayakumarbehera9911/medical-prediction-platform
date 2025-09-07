@@ -13,7 +13,7 @@ import io
 import os
 from dotenv import load_dotenv
 import warnings; warnings.filterwarnings("ignore")
-
+import time
 # NEW: Authentication imports for Google OAuth + MySQL
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
@@ -31,12 +31,20 @@ load_dotenv()
 
 app = Flask(__name__)
 CORS(app, 
-     origins=["http://127.0.0.1:5000", "http://localhost:5000", "https://accounts.google.com", "https://medipredict-nvdw.onrender.com"], 
-     supports_credentials=True,
+     origins=["http://127.0.0.1:5000", "http://localhost:5000", "https://accounts.google.com", "https://accounts.googleapis.com", "https://www.googleapis.com", "https://medipredict-nvdw.onrender.com"],
      allow_headers=["Content-Type", "Authorization", "Accept", "Origin", "X-Requested-With"],
      methods=["GET", "POST", "OPTIONS"],
      expose_headers=["Content-Type", "Authorization"]
 )
+@app.after_request
+def after_request(response):
+    response.headers['Content-Security-Policy'] = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' https://accounts.google.com https://apis.google.com; "
+        "frame-src https://accounts.google.com; "
+        "connect-src 'self' https://accounts.google.com https://www.googleapis.com;"
+    )
+    return response
 # NEW: Configuration
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'secrete-key-medipredict-kit-2024')
 def create_mysql_database_if_not_exists():
@@ -256,6 +264,7 @@ def login():
     return render_template("login.html", google_client_id=app.config['GOOGLE_CLIENT_ID'])
 
 @app.route("/auth/google", methods=["POST"])
+@app.route("/auth/google", methods=["POST"])
 def google_auth():
     """Handle Google OAuth token verification"""
     try:
@@ -266,8 +275,12 @@ def google_auth():
         token = data['credential']
         
         # Verify the Google token
-        idinfo = id_token.verify_oauth2_token(
-            token, requests.Request(), app.config['GOOGLE_CLIENT_ID'])
+        try:
+            idinfo = id_token.verify_oauth2_token(
+                token, requests.Request(), app.config['GOOGLE_CLIENT_ID'])
+        except Exception as token_error:
+            print(f"Google token verification failed: {str(token_error)}")
+            return jsonify({"error": "Invalid Google token"}), 401
         
         google_id = idinfo['sub']
         email = idinfo['email']
@@ -276,29 +289,33 @@ def google_auth():
         
         print(f"Google auth successful for: {email}")
         
-        # Check database connection before querying
-        try:
-            db.session.execute(db.text('SELECT 1'))
-            db.session.commit()
-        except Exception as db_error:
-            print(f"Database connection failed during auth: {str(db_error)}")
-            return jsonify({"error": "Database temporarily unavailable"}), 503
+        # Ensure database is ready with retry logic
+        max_db_retries = 3
+        for attempt in range(max_db_retries):
+            try:
+                # Test connection
+                db.session.execute(db.text('SELECT 1'))
+                db.session.commit()
+                break
+            except Exception as db_error:
+                print(f"Database connection attempt {attempt + 1} failed: {str(db_error)}")
+                db.session.rollback()
+                if attempt == max_db_retries - 1:
+                    return jsonify({"error": "Database temporarily unavailable"}), 503
+                time.sleep(1)  # Wait before retry
         
-        # Check if user exists by google_id
-        try:
-            user = User.query.filter_by(google_id=google_id).first()
-        except Exception as query_error:
-            print(f"Database query failed: {str(query_error)}")
-            # Try to reinitialize database
-            print("Attempting to reinitialize database...")
-            if init_database():
-                try:
-                    user = User.query.filter_by(google_id=google_id).first()
-                except Exception as retry_error:
-                    print(f"Retry failed: {str(retry_error)}")
-                    return jsonify({"error": "Database initialization failed"}), 500
-            else:
-                return jsonify({"error": "Database initialization failed"}), 500
+        # Check if user exists by google_id with retry
+        user = None
+        for attempt in range(3):
+            try:
+                user = User.query.filter_by(google_id=google_id).first()
+                break
+            except Exception as query_error:
+                print(f"User query attempt {attempt + 1} failed: {str(query_error)}")
+                db.session.rollback()
+                if attempt == 2:
+                    return jsonify({"error": "Database query failed"}), 500
+                time.sleep(0.5)
         
         if user:
             # Existing user - login directly
@@ -306,19 +323,25 @@ def google_auth():
             return jsonify({"success": True, "redirect": url_for('dashboard')})
         
         # Check if user exists by email (account linking)
+        existing_user = None
         try:
             existing_user = User.query.filter_by(email=email).first()
         except Exception as email_query_error:
             print(f"Email query failed: {str(email_query_error)}")
-            existing_user = None
+            db.session.rollback()
         
         if existing_user:
             # Link Google account to existing user
-            existing_user.google_id = google_id
-            existing_user.profile_picture_url = profile_picture
-            db.session.commit()
-            login_user(existing_user, remember=True)
-            return jsonify({"success": True, "redirect": url_for('dashboard')})
+            try:
+                existing_user.google_id = google_id
+                existing_user.profile_picture_url = profile_picture
+                db.session.commit()
+                login_user(existing_user, remember=True)
+                return jsonify({"success": True, "redirect": url_for('dashboard')})
+            except Exception as update_error:
+                print(f"User update failed: {str(update_error)}")
+                db.session.rollback()
+                return jsonify({"error": "Account linking failed"}), 500
         
         # New user - needs to complete profile
         session['google_user_data'] = {
@@ -330,10 +353,12 @@ def google_auth():
         
         return jsonify({"success": True, "needs_profile_completion": True, "redirect": url_for('complete_profile')})
         
-    except ValueError:
-        return jsonify({"error": "Invalid Google token"}), 401
     except Exception as e:
         print(f"Google auth error: {str(e)}")
+        try:
+            db.session.rollback()
+        except:
+            pass
         return jsonify({"error": "Authentication failed"}), 500
 
 @app.route("/complete-profile")
@@ -1014,14 +1039,13 @@ def internal_error(error):
     db.session.rollback()
     return render_template('errors/500.html'), 500
 
-# NEW: Initialize database on first run - IMPROVED VERSION
 def init_database():
-    """Initialize database tables with PostgreSQL compatibility"""
+    """Initialize database tables with PostgreSQL compatibility - PRODUCTION SAFE"""
     try:
         with app.app_context():
             print("🔄 Starting database initialization...")
             
-            # Test basic connection
+            # Test basic connection first
             try:
                 db.session.execute(db.text('SELECT 1'))
                 db.session.commit()
@@ -1038,6 +1062,7 @@ def init_database():
                         SELECT table_name 
                         FROM information_schema.tables 
                         WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
+                        AND table_name IN ('users', 'prediction_history')
                     """
                 else:
                     # Local MySQL
@@ -1046,58 +1071,32 @@ def init_database():
                         SELECT table_name 
                         FROM information_schema.tables 
                         WHERE table_schema = '{mysql_db}'
+                        AND table_name IN ('users', 'prediction_history')
                     """
                 
                 existing_tables = db.session.execute(db.text(table_query)).fetchall()
                 table_names = [row[0] for row in existing_tables]
-                print(f"📋 Existing tables: {table_names}")
+                print(f"📋 Existing required tables: {table_names}")
                 
-                if 'users' in table_names and 'prediction_history' in table_names:
+                # Only create tables if they don't exist
+                if len(table_names) >= 2:
                     print("✅ All required tables already exist!")
                     return True
-                    
-            except Exception as check_error:
-                print(f"⚠️ Could not check existing tables: {str(check_error)}")
-            
-            # Force drop and recreate tables
-            print("🔨 Dropping existing tables and creating new ones...")
-            try:
-                db.drop_all()
-                db.session.commit()
-                print("🗑️ Dropped all existing tables")
-            except Exception as drop_error:
-                print(f"⚠️ Error dropping tables: {str(drop_error)}")
-            
-            # Create all tables
-            db.create_all()
-            db.session.commit()
-            print("🏗️ Created all tables")
-            
-            # Verify tables were created
-            try:
-                new_tables = db.session.execute(db.text(table_query)).fetchall()
-                new_table_names = [row[0] for row in new_tables]
-                print(f"📋 Tables after creation: {new_table_names}")
-                
-                required_tables = ['users', 'prediction_history']
-                missing_tables = [table for table in required_tables if table not in new_table_names]
-                
-                if missing_tables:
-                    print(f"❌ Missing tables after creation: {missing_tables}")
-                    return False
                 else:
-                    print("✅ All required tables created successfully!")
+                    print("🔨 Creating missing tables...")
+                    # Only create tables, don't drop existing ones
+                    db.create_all()
+                    db.session.commit()
+                    print("🗂️ Tables created successfully")
                     return True
-                
-            except Exception as verify_error:
-                print(f"❌ Could not verify table creation: {str(verify_error)}")
+                    
+            except Exception as table_error:
+                print(f"❌ Error with table operations: {str(table_error)}")
+                db.session.rollback()
                 return False
             
     except Exception as e:
         print(f"❌ Database initialization error: {str(e)}")
-        print(f"Error type: {type(e).__name__}")
-        import traceback
-        traceback.print_exc()
         try:
             db.session.rollback()
         except:
@@ -1105,23 +1104,25 @@ def init_database():
         return False
 
 # Main application entry point
+# Main application entry point
 if __name__ == "__main__":
-    # Initialize database on startup with retry
     print("🚀 Starting MediPredict Platform...")
     
-    max_retries = 3
-    for attempt in range(max_retries):
-        print(f"Database initialization attempt {attempt + 1}/{max_retries}")
+    # Only initialize database if not in production or if forced
+    should_init = (
+        os.environ.get('FLASK_ENV') == 'development' or 
+        os.environ.get('FORCE_DB_INIT') == 'true' or
+        not os.environ.get('DATABASE_URL')  # Local development
+    )
+    
+    if should_init:
+        print("Database initialization attempt...")
         if init_database():
             print("✅ Database initialization successful!")
-            break
-        elif attempt < max_retries - 1:
-            print(f"❌ Attempt {attempt + 1} failed, retrying...")
-            import time
-            time.sleep(2)
         else:
-            print("❌ All database initialization attempts failed!")
-            print("⚠️ Application starting anyway - database reset may be needed")
+            print("⚠️ Database initialization failed - continuing anyway")
+    else:
+        print("⚠️ Skipping database initialization in production")
     
     # Get port from environment variable (for deployment)
     port = int(os.environ.get("PORT", 5000))
@@ -1130,15 +1131,15 @@ if __name__ == "__main__":
     print(f"🚀 Starting MediPredict Platform on port {port}")
     print("📊 Available prediction services:")
     print("   • Lung Cancer Risk Assessment")
-    print("   • COVID-19 Health Assessment")
+    print("   • COVID-19 Health Assessment") 
     print("   • Cardiovascular Disease Prediction")
     print("   • CV Disease Risk Assessment")
     print("   • Eye Disease Detection")
     print("🔐 Google OAuth Authentication Ready")
-    print("💾 MySQL Database with Auto-Creation")
+    print("💾 Database Ready")
     
     app.run(
         host="0.0.0.0",
         port=port,
         debug=os.environ.get("FLASK_ENV") == "development"
-    )    
+    )
