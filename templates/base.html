@@ -45,8 +45,25 @@
                 <a href="/#about" class="nav-link">About Us</a>
             </div>
 
-
-
+            <!-- NEW: Authentication buttons -->
+            <!-- Replace the nav-auth section in your base.html with this corrected version -->
+            <div class="nav-auth">
+                {% if current_user.is_authenticated %}
+                <div class="user-menu">
+                    {% if current_user.profile_picture_url %}
+                    <img src="{{ current_user.profile_picture_url }}" alt="Profile" class="nav-avatar"
+                        style="width: 32px; height: 32px; border-radius: 50%; margin-right: 8px;">
+                    {% endif %}
+                    <span class="nav-link">Hello, {{ current_user.full_name.split()[0] }}</span>
+                    <a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a>
+                    <a href="{{ url_for('logout') }}" class="nav-link logout-btn">Logout</a>
+                </div>
+                {% else %}
+                <div class="auth-buttons">
+                    <a href="{{ url_for('login') }}" class="nav-link login-btn">Login</a>
+                </div>
+                {% endif %}
+            </div>
             <div class="nav-toggle" id="nav-toggle">
                 <span class="bar"></span>
                 <span class="bar"></span>

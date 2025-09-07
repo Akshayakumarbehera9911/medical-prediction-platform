@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Medical Prediction Platform{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <div class="user-profile">
+            {% if current_user.profile_picture_url %}
+            <img src="{{ current_user.profile_picture_url }}" alt="Profile Picture" class="profile-avatar">
+            {% else %}
+            <div class="profile-avatar-placeholder">
+                {{ current_user.full_name[0].upper() }}
+            </div>
+            {% endif %}
+            <div class="user-info">
+                <h1>Welcome back, {{ current_user.full_name }}!</h1>
+                <p class="user-details">
+                    {{ current_user.age }} years old • {{ current_user.city }}
+                </p>
+                <p class="user-email">{{ current_user.email }}</p>
+            </div>
+        </div>
+
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <h3>{{ predictions|length }}</h3>
+                <p>Total Predictions</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{ current_user.created_at.strftime('%b %Y') }}</h3>
+                <p>Member Since</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-content">
+        <div class="prediction-history">
+            <div class="history-header">
+                <h2>My Prediction History</h2>
+                <p>View all your saved medical predictions</p>
+                {% if predictions %}
+                <a href="/user-history" class="btn btn-secondary">View All History</a>
+                {% endif %}
+            </div>
+
+            {% if predictions %}
+            <div class="history-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date & Time</th>
+                            <th>Prediction Type</th>
+                            <th>Result</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for prediction in predictions[:5] %}
+                        <tr class="prediction-row">
+                            <td>
+                                {{ prediction.created_at.strftime('%Y-%m-%d') }}<br>
+                                <small>{{ prediction.created_at.strftime('%H:%M:%S') }}</small>
+                            </td>
+                            <td>
+                                <span class="prediction-type-badge {% if prediction.prediction_type == 'covid' %}covid{% elif prediction.prediction_type == 'lung_cancer' %}lung{% elif prediction.prediction_type == 'cardiovascular' %}cardio{% elif prediction.prediction_type == 'cv' %}cv{% elif prediction.prediction_type == 'eye' %}eye{% endif %}">
+                                    {% if prediction.prediction_type == 'lung_cancer' %}LUNG CANCER ASSESSMENT
+                                    {% elif prediction.prediction_type == 'covid' %}COVID-19 ASSESSMENT
+                                    {% elif prediction.prediction_type == 'cardiovascular' %}CARDIOVASCULAR DISEASE
+                                    {% elif prediction.prediction_type == 'cv' %}CV DISEASE RISK
+                                    {% elif prediction.prediction_type == 'eye' %}EYE DISEASE DETECTION
+                                    {% else %}{{ prediction.prediction_type|title }}{% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="result-badge {% if 'negative' in prediction.result.prediction|lower or 'low risk' in prediction.result.prediction|lower %}negative{% else %}positive{% endif %}">
+                                    {% if prediction.result and prediction.result.prediction %}
+                                    {{ prediction.result.prediction }}
+                                    {% else %}
+                                    Prediction completed
+                                    {% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="toggleDetails({{ prediction.id }})">
+                                    <span id="btn-text-{{ prediction.id }}">View Details</span>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr id="details-{{ prediction.id }}" class="details-row" style="display: none;">
+                            <td colspan="4">
+                                <div class="prediction-details-compact">
+                                    <div class="details-header-compact">
+                                        <h4>Prediction Details</h4>
+                                        <small>{{ prediction.created_at.strftime('%B %d, %Y at %I:%M %p') }}</small>
+                                    </div>
+
+                                    <div class="details-content-compact">
+                                        <div class="input-section-compact">
+                                            <h5>📊 Input Parameters</h5>
+                                            <div class="params-grid-compact">
+                                                {% for key, value in prediction.input_data.items() %}
+                                                {% if key not in ['image_filename', 'image_size'] %}
+                                                <div class="param-item-compact">
+                                                    <span class="param-label-compact">{{ key.replace('_', ' ')|title }}</span>
+                                                    <span class="param-value-compact">{{ value }}</span>
+                                                </div>
+                                                {% endif %}
+                                                {% endfor %}
+
+                                                {% if prediction.input_data.get('image_filename') %}
+                                                <div class="param-item-compact">
+                                                    <span class="param-label-compact">Image File</span>
+                                                    <span class="param-value-compact">{{ prediction.input_data.image_filename }}</span>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
+                                        <div class="result-section-compact">
+                                            <h5>🎯 Prediction Results</h5>
+                                            <div class="result-card-compact">
+                                                <div class="main-result-compact">
+                                                    <span class="result-label-main">Result:</span>
+                                                    <span class="result-value-main">{{ prediction.result.prediction }}</span>
+                                                </div>
+
+                                                <div class="probability-grid-compact">
+                                                    {% if prediction.result.get('probability') %}
+                                                    {% if prediction.result.probability is mapping %}
+                                                    {% for prob_key, prob_value in prediction.result.probability.items() %}
+                                                    <div class="prob-item-compact">
+                                                        <span class="prob-label-compact">{{ prob_key.replace('_', ' ')|title }}</span>
+                                                        <span class="prob-value-compact">{{ prob_value }}%</span>
+                                                    </div>
+                                                    {% endfor %}
+                                                    {% else %}
+                                                    <div class="prob-item-compact">
+                                                        <span class="prob-label-compact">Probability</span>
+                                                        <span class="prob-value-compact">{{ (prediction.result.probability * 100)|round(2) }}%</span>
+                                                    </div>
+                                                    {% endif %}
+                                                    {% endif %}
+
+                                                    {% if prediction.result.get('confidence') %}
+                                                    <div class="prob-item-compact">
+                                                        <span class="prob-label-compact">Confidence</span>
+                                                        <span class="prob-value-compact">{{ prediction.result.confidence }}%</span>
+                                                    </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-history">
+                <div class="empty-icon">📊</div>
+                <h3>No predictions yet</h3>
+                <p>Your prediction history will appear here once you start using our services.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

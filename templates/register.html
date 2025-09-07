@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+{% block title %}Register - Medical Prediction Platform{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>Create Account</h1>
+            <p>Sign up to save your prediction history</p>
+        </div>
+
+        <div id="registerMessage" class="message" style="display: none;"></div>
+
+        <!-- Google Sign-In Section -->
+        <div id="googleSigninSection" class="google-signin-section">
+            {% if config.GOOGLE_CLIENT_ID %}
+            <div id="g_id_onload"
+                 data-client_id="{{ config.GOOGLE_CLIENT_ID }}"
+                 data-callback="handleGoogleSignup"
+                 data-auto_prompt="false"
+                 data-itp_support="true">
+            </div>
+            <div class="g_id_signin" 
+                 data-type="standard" 
+                 data-size="large" 
+                 data-theme="outline" 
+                 data-text="signup_with"
+                 data-shape="rectangular"
+                 data-logo_alignment="left">
+            </div>
+            {% else %}
+            <p style="color: #ef4444; font-size: 0.875rem;">Google Sign-In not configured</p>
+            {% endif %}
+        </div>
+
+        <!-- Divider -->
+        <div id="dividerSection" class="divider">
+            <span>OR</span>
+        </div>
+
+        <!-- Registration Form -->
+        <form id="registerForm" class="auth-form">
+            <!-- Hidden Google fields (shown when Google registration needs completion) -->
+            <div id="googleFields" style="display: none;">
+                <input type="hidden" id="googleId" name="google_id">
+                <div class="form-group">
+                    <label for="googleEmail">Email (from Google)</label>
+                    <input type="email" id="googleEmail" name="email" class="readonly-field" readonly>
+                </div>
+            </div>
+
+            <!-- Traditional registration fields -->
+            <div id="traditionalFields">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required minlength="6">
+                    <small>Minimum 6 characters</small>
+                </div>
+            </div>
+
+            <!-- Common fields for both registration types -->
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required pattern="[a-zA-Z0-9]{3,20}" title="3-20 characters, letters and numbers only">
+                <small>3-20 characters, letters and numbers only</small>
+            </div>
+
+            <div class="form-group">
+                <label for="age">Age</label>
+                <input type="number" id="age" name="age" min="1" max="120" required>
+            </div>
+
+            <div class="form-group">
+                <label for="city">City (Optional)</label>
+                <input type="text" id="city" name="city">
+            </div>
+
+            <button type="submit" id="registerBtn" class="btn-primary">
+                <span class="btn-text">Create Account</span>
+                <span class="btn-spinner" style="display: none;"></span>
+            </button>
+        </form>
+
+        <div class="auth-links">
+            <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+            <p><a href="{{ url_for('home') }}">Continue without account</a></p>
+        </div>
+
+        <div class="auth-note">
+            <p><strong>Note:</strong> All prediction services work without logging in. Creating an account allows you to save and view your prediction history.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Load Google Sign-In script BEFORE auth.js -->
+{% if config.GOOGLE_CLIENT_ID %}
+<script src="https://accounts.google.com/gsi/client" async defer onload="initGoogleSignIn()"></script>
+{% endif %}
+<script>
+// Initialize Google Sign-In after library loads
+function initGoogleSignIn() {
+    console.log('Google Sign-In library loaded');
+    // The g_id_onload div will automatically initialize the button
+}
+
+// Global callback function for Google Sign-In
+window.handleGoogleSignup = function(response) {
+    console.log('Google signup response received:', response);
+    
+    if (!response || !response.credential) {
+        console.error('Invalid Google response:', response);
+        showMessage('Invalid Google authentication response', 'error');
+        return;
+    }
+    
+    // Show loading message
+    showMessage('Processing Google authentication...', 'info');
+
+    fetch('/google-login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            credential: response.credential
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Google auth response:', data);
+        
+        if (data.success) {
+            // User exists and logged in successfully
+            showMessage('Login successful! Redirecting...', 'success');
+            setTimeout(() => {
+                window.location.href = data.redirect;
+            }, 1000);
+        } else if (data.requires_additional_info) {
+            // New user needs to complete registration
+            completeGoogleRegistration(data.google_data);
+            showMessage('Please complete your registration below', 'info');
+        } else {
+            showMessage(data.error || 'Authentication failed', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Google signup error:', error);
+        showMessage('Google signup failed. Please try again.', 'error');
+    });
+};
+
+// Complete Google registration function
+function completeGoogleRegistration(googleData) {
+    // Hide Google signin and divider
+    const googleSection = document.getElementById('googleSigninSection');
+    const dividerSection = document.getElementById('dividerSection');
+    const googleFields = document.getElementById('googleFields');
+    const traditionalFields = document.getElementById('traditionalFields');
+
+    if (googleSection) googleSection.style.display = 'none';
+    if (dividerSection) dividerSection.style.display = 'none';
+    if (googleFields) googleFields.style.display = 'block';
+    if (traditionalFields) traditionalFields.style.display = 'none';
+
+    // Populate Google data
+    const googleIdField = document.getElementById('googleId');
+    const googleEmailField = document.getElementById('googleEmail');
+    const usernameField = document.getElementById('username');
+
+    if (googleIdField) googleIdField.value = googleData.google_id;
+    if (googleEmailField) googleEmailField.value = googleData.email;
+
+    // Pre-fill username with Google name if available
+    if (googleData.name && usernameField) {
+        const cleanName = googleData.name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+        if (cleanName.length >= 3 && cleanName.length <= 20) {
+            usernameField.value = cleanName;
+        }
+    }
+
+    // Update header
+    const headerTitle = document.querySelector('.auth-header h1');
+    const headerDesc = document.querySelector('.auth-header p');
+
+    if (headerTitle) headerTitle.textContent = 'Complete Your Registration';
+    if (headerDesc) headerDesc.textContent = 'Just a few more details to get started';
+}
+
+// Show message function
+function showMessage(text, type) {
+    const messageDiv = document.getElementById('registerMessage');
+    if (!messageDiv) return;
+
+    messageDiv.textContent = text;
+    messageDiv.className = `message ${type}`;
+    messageDiv.style.display = 'block';
+
+    if (type === 'error') {
+        setTimeout(() => {
+            messageDiv.style.display = 'none';
+        }, 5000);
+    }
+}
+</script>
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In - Medical Prediction Platform{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>Welcome to MediPredict</h1>
+            <p>Sign in to save your prediction history and track your health assessments</p>
+        </div>
+
+        <div class="auth-benefits">
+            <h3>Benefits of signing in:</h3>
+            <ul>
+                <li>Save all your prediction results</li>
+                <li>Track your health assessments over time</li>
+                <li>View detailed prediction history</li>
+                <li>Access personalized insights</li>
+            </ul>
+        </div>
+
+        <div class="google-signin-container">
+            <div id="g_id_onload"
+                 data-client_id="{{ google_client_id }}"
+                 data-callback="handleCredentialResponse"
+                 data-auto_prompt="false">
+            </div>
+            <div class="g_id_signin" 
+                 data-type="standard"
+                 data-size="large"
+                 data-theme="outline"
+                 data-text="sign_in_with"
+                 data-shape="rectangular"
+                 data-logo_alignment="left">
+            </div>
+        </div>
+
+        <div class="auth-divider">
+            <span>OR</span>
+        </div>
+
+        <div class="continue-anonymous">
+            <a href="/" class="btn btn-secondary">Continue Without Account</a>
+            <p class="note">You can use all prediction services without signing in, but your results won't be saved.</p>
+        </div>
+
+        <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+            <div class="spinner"></div>
+            <p>Signing you in...</p>
+        </div>
+    </div>
+</div>
+
+<script>
+function handleCredentialResponse(response) {
+    console.log("Google Sign-In successful");
+    
+    // Show loading state
+    document.getElementById('loadingOverlay').style.display = 'flex';
+    
+    // Send the credential to your server
+    fetch('/auth/google', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            credential: response.credential
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (data.needs_profile_completion) {
+                window.location.href = data.redirect;
+            } else {
+                window.location.href = data.redirect || '/dashboard';
+            }
+        } else {
+            alert('Sign in failed: ' + (data.error || 'Unknown error'));
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        alert('Sign in failed. Please try again.');
+        document.getElementById('loadingOverlay').style.display = 'none';
+    });
+}
+</script>
+{% endblock %}

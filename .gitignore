@@ -1,8 +1,139 @@
-venv/
-__pycache__/
-*.pyc
-
-*.sqlite3
-.DS_Store
+# Environment variables and secrets
 .env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+.ENV/
+.env/
+env.bak/
+venv.bak/
+pyvenv.cfg
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+instance/
+*.db-journal
+
+# Jupyter Notebooks
 *.ipynb
+.ipynb_checkpoints/
+
+# Machine Learning Models (can be large)
+models/*.pkl
+models/*.pth
+models/*.h5
+models/*.joblib
+*.model
+*.weights
+
+# Operating System
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.metadata
+.settings/
+
+# Logs
+*.log
+logs/
+log/
+
+# Flask specific
+instance/
+.webassets-cache
+
+# Coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Documentation
+docs/_build/
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / pytest
+.pytest_cache/
+.coverage
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# User uploads (if you have file uploads)
+uploads/
+user_files/
+
+# Config files with sensitive data
+config.ini
+settings.ini
+
+#avoid models
+# models/

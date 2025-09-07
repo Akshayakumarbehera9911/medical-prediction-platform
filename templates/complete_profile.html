@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Complete Your Profile - Medical Prediction Platform{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>Welcome, {{ user_data.full_name.split()[0] }}!</h1>
+            <p>Please complete your profile to get started with MediPredict</p>
+        </div>
+
+        <div class="profile-form-container">
+            <form id="profileForm" class="profile-form">
+                <div class="form-group">
+                    <label for="age">Age *</label>
+                    <select id="age" name="age" required>
+                        <option value="">Select your age</option>
+                        {% for age in range(18, 101) %}
+                        <option value="{{ age }}">{{ age }} years old</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="city">City *</label>
+                    <input type="text" 
+                           id="city" 
+                           name="city" 
+                           placeholder="Enter your city" 
+                           required 
+                           minlength="2" 
+                           maxlength="100">
+                </div>
+
+                <button type="submit" class="btn btn-primary">Complete Registration</button>
+                
+                <p class="form-note">
+                    * Required fields. This information helps us provide better predictions and is kept secure.
+                </p>
+            </form>
+        </div>
+
+        <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+            <div class="spinner"></div>
+            <p>Creating your account...</p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('profileForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const age = document.getElementById('age').value;
+    const city = document.getElementById('city').value.trim();
+    
+    // Validation
+    if (!age) {
+        alert('Please select your age');
+        return;
+    }
+    
+    if (!city || city.length < 2) {
+        alert('Please enter a valid city name (at least 2 characters)');
+        return;
+    }
+    
+    // Show loading
+    document.getElementById('loadingOverlay').style.display = 'flex';
+    
+    try {
+        const response = await fetch('/complete-profile', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                age: parseInt(age),
+                city: city
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            window.location.href = data.redirect || '/dashboard';
+        } else {
+            alert('Registration failed: ' + (data.error || 'Unknown error'));
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Registration failed. Please try again.');
+        document.getElementById('loadingOverlay').style.display = 'none';
+    }
+});
+
+// Auto-focus on age dropdown
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('age').focus();
+});
+</script>
+{% endblock %}

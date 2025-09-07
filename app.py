@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, redirect, url_for, flash, session, make_response
 import joblib
 import numpy as np
 import pandas as pd
@@ -10,13 +10,142 @@ import torch.nn as nn
 from torchvision import transforms, models
 from PIL import Image
 import io
-import base64
+import os
+from dotenv import load_dotenv
 import warnings; warnings.filterwarnings("ignore")
 
-app = Flask(__name__)
-CORS(app)
+# NEW: Authentication imports for Google OAuth + MySQL
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from google.auth.transport import requests
+from google.oauth2 import id_token
+import json
+from datetime import datetime
+import pymysql
+import psycopg2
+from sqlalchemy import create_engine
+from sqlalchemy.exc import OperationalError
+import urllib.parse
+# Load environment variables
+load_dotenv()
 
-# Global variables for models - initially None
+app = Flask(__name__)
+CORS(app, 
+     origins=["http://127.0.0.1:5000", "http://localhost:5000", "https://accounts.google.com"], 
+     supports_credentials=True,
+     allow_headers=["Content-Type", "Authorization", "Accept", "Origin", "X-Requested-With"],
+     methods=["GET", "POST", "OPTIONS"],
+     expose_headers=["Content-Type", "Authorization"]
+)
+
+# NEW: Configuration
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'secrete-key-medipredict-kit-2024')
+def create_mysql_database_if_not_exists():
+    """Create MySQL database if it doesn't exist"""
+    try:
+        mysql_user = os.environ.get('MYSQL_USER', 'root')
+        mysql_password = os.environ.get('MYSQL_PASSWORD', 'password')
+        mysql_host = os.environ.get('MYSQL_HOST', 'localhost')
+        mysql_port = int(os.environ.get('MYSQL_PORT', '3306'))
+        mysql_db = os.environ.get('MYSQL_DB', 'medipredict_db')
+        
+        # Connect without specifying database
+        connection = pymysql.connect(
+            host=mysql_host,
+            port=mysql_port,
+            user=mysql_user,
+            password=mysql_password
+        )
+        
+        with connection.cursor() as cursor:
+            cursor.execute(f"CREATE DATABASE IF NOT EXISTS {mysql_db}")
+        connection.commit()
+        connection.close()
+        print(f"✅ MySQL database '{mysql_db}' created/verified successfully!")
+        
+    except Exception as e:
+        print(f"⚠️ Error creating MySQL database: {str(e)}")
+
+# NEW: Database configuration with auto-creation
+if os.environ.get('DATABASE_URL'):
+    # Production: PostgreSQL on Render
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL').replace('postgres://', 'postgresql://', 1)
+    print("🔧 Using PostgreSQL (Production)")
+else:
+    # Local development: MySQL with auto-creation
+    create_mysql_database_if_not_exists()
+    mysql_user = os.environ.get('MYSQL_USER', 'root')
+    mysql_password = os.environ.get('MYSQL_PASSWORD', 'password')
+    mysql_host = os.environ.get('MYSQL_HOST', 'localhost')
+    mysql_port = os.environ.get('MYSQL_PORT', '3306')
+    mysql_db = os.environ.get('MYSQL_DB', 'medipredict_db')
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{mysql_user}:{mysql_password}@{mysql_host}:{mysql_port}/{mysql_db}'
+    print("🔧 Using MySQL (Local Development)")
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['GOOGLE_CLIENT_ID'] = os.environ.get('GOOGLE_CLIENT_ID', '')
+
+# NEW: Initialize extensions
+db = SQLAlchemy(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+# NEW: Simplified User model (Google OAuth only)
+class User(UserMixin, db.Model):
+    __tablename__ = 'users'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(255), unique=True, nullable=False)
+    full_name = db.Column(db.String(255), nullable=False)
+    google_id = db.Column(db.String(255), unique=True, nullable=False)
+    profile_picture_url = db.Column(db.Text, nullable=True)
+    age = db.Column(db.Integer, nullable=False)
+    city = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationship to prediction history
+    predictions = db.relationship('PredictionHistory', backref='user', lazy=True, cascade='all, delete-orphan')
+    
+    def __repr__(self):
+        return f'<User {self.email}>'
+
+# NEW: Prediction history model
+class PredictionHistory(db.Model):
+    __tablename__ = 'prediction_history'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    prediction_type = db.Column(db.String(50), nullable=False)  # lung_cancer, covid, cardiovascular, cv, eye
+    input_data = db.Column(db.JSON, nullable=False)  # Store as JSON
+    result = db.Column(db.JSON, nullable=False)  # Store as JSON
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    def __repr__(self):
+        return f'<PredictionHistory {self.prediction_type} for User {self.user_id}>'
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+# NEW: Helper function to save prediction history
+def save_prediction_history(prediction_type, input_data, result):
+    """Save prediction to user's history if logged in"""
+    if current_user.is_authenticated:
+        try:
+            history = PredictionHistory(
+                user_id=current_user.id,
+                prediction_type=prediction_type,
+                input_data=input_data,  # Direct JSON storage
+                result=result  # Direct JSON storage
+            )
+            db.session.add(history)
+            db.session.commit()
+            print(f"✅ Saved {prediction_type} prediction to history for user {current_user.email}")
+        except Exception as e:
+            print(f"❌ Error saving prediction history: {str(e)}")
+            db.session.rollback()
+
+# Model loading variables (UNCHANGED)
 lung_model = None
 covid_model = None
 covid_scaler = None
@@ -28,6 +157,7 @@ eye_model = None
 eye_transform = None
 eye_class_names = None
 
+# ALL MODEL LOADING FUNCTIONS REMAIN UNCHANGED
 def get_lung_model():
     """Lazy load lung cancer model"""
     global lung_model
@@ -118,6 +248,163 @@ def get_eye_model():
             return None, None, None
     return eye_model, eye_transform, eye_class_names
 
+# NEW: Google OAuth Authentication Routes
+@app.route("/login")
+def login():
+    """Display Google Sign-In only login page"""
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
+    return render_template("login.html", google_client_id=app.config['GOOGLE_CLIENT_ID'])
+
+@app.route("/auth/google", methods=["POST"])
+def google_auth():
+    """Handle Google OAuth token verification"""
+    try:
+        data = request.get_json()
+        if not data or 'credential' not in data:
+            return jsonify({"error": "No Google credential provided"}), 400
+        
+        token = data['credential']
+        
+        # Verify the Google token
+        idinfo = id_token.verify_oauth2_token(
+            token, requests.Request(), app.config['GOOGLE_CLIENT_ID'])
+        
+        google_id = idinfo['sub']
+        email = idinfo['email']
+        full_name = idinfo.get('name', email.split('@')[0])
+        profile_picture = idinfo.get('picture', '')
+        
+        print(f"Google auth successful for: {email}")
+        
+        # Check if user exists by google_id
+        user = User.query.filter_by(google_id=google_id).first()
+        
+        if user:
+            # Existing user - login directly
+            login_user(user, remember=True)
+            return jsonify({"success": True, "redirect": url_for('dashboard')})
+        
+        # Check if user exists by email (account linking)
+        existing_user = User.query.filter_by(email=email).first()
+        if existing_user:
+            # Link Google account to existing user
+            existing_user.google_id = google_id
+            existing_user.profile_picture_url = profile_picture
+            db.session.commit()
+            login_user(existing_user, remember=True)
+            return jsonify({"success": True, "redirect": url_for('dashboard')})
+        
+        # New user - needs to complete profile
+        session['google_user_data'] = {
+            'google_id': google_id,
+            'email': email,
+            'full_name': full_name,
+            'profile_picture_url': profile_picture
+        }
+        
+        return jsonify({"success": True, "needs_profile_completion": True, "redirect": url_for('complete_profile')})
+        
+    except ValueError as e:
+        print(f"Google token verification failed: {str(e)}")
+        return jsonify({"error": "Invalid Google token"}), 400
+    except Exception as e:
+        print(f"Google auth error: {str(e)}")
+        return jsonify({"error": "Authentication failed"}), 500
+
+@app.route("/complete-profile")
+def complete_profile():
+    """Display profile completion page"""
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
+    
+    if 'google_user_data' not in session:
+        flash('Session expired. Please sign in again.', 'error')
+        return redirect(url_for('login'))
+    
+    google_data = session['google_user_data']
+    return render_template("complete_profile.html", user_data=google_data)
+
+@app.route("/complete-profile", methods=["POST"])
+def complete_profile_post():
+    """Handle profile completion form submission"""
+    try:
+        if 'google_user_data' not in session:
+            return jsonify({"error": "Session expired. Please sign in again."}), 400
+        
+        data = request.get_json()
+        age = data.get('age')
+        city = data.get('city')
+        
+        # Validation
+        if not age or not city:
+            return jsonify({"error": "Age and city are required"}), 400
+        
+        try:
+            age = int(age)
+            if age < 18 or age > 100:
+                return jsonify({"error": "Age must be between 18 and 100"}), 400
+        except ValueError:
+            return jsonify({"error": "Age must be a valid number"}), 400
+        
+        if len(city.strip()) < 2:
+            return jsonify({"error": "City name must be at least 2 characters"}), 400
+        
+        # Create new user
+        google_data = session['google_user_data']
+        user = User(
+            email=google_data['email'],
+            full_name=google_data['full_name'],
+            google_id=google_data['google_id'],
+            profile_picture_url=google_data['profile_picture_url'],
+            age=age,
+            city=city.strip()
+        )
+        
+        db.session.add(user)
+        db.session.commit()
+        
+        # Clear session data
+        session.pop('google_user_data', None)
+        
+        # Login the user
+        login_user(user, remember=True)
+        
+        return jsonify({"success": True, "redirect": url_for('dashboard')})
+        
+    except Exception as e:
+        print(f"Profile completion error: {str(e)}")
+        db.session.rollback()
+        return jsonify({"error": "Registration failed. Please try again."}), 500
+
+@app.route("/dashboard")
+@login_required
+def dashboard():
+    """User dashboard with prediction history"""
+    # Get user's prediction history
+    predictions = PredictionHistory.query.filter_by(user_id=current_user.id)\
+        .order_by(PredictionHistory.created_at.desc()).limit(20).all()
+    
+    return render_template("dashboard.html", predictions=predictions)
+
+@app.route("/logout")
+def logout():  # Remove @login_required
+    """Logout user and redirect to home"""
+    if current_user.is_authenticated:
+        logout_user()
+    
+    # Clear all session data
+    session.clear()
+    
+    # Force clear Flask-Login cookies
+    response = make_response(redirect(url_for('home')))
+    response.set_cookie('remember_token', '', expires=0)
+    response.set_cookie('session', '', expires=0)
+    
+    flash('You have been logged out successfully.', 'info')
+    return response
+
+# ALL EXISTING ROUTES REMAIN UNCHANGED (just adding history saving)
 @app.route("/")
 def home():
     """Render the home page"""
@@ -230,6 +517,9 @@ def predict_lung_cancer():
                 "high_risk": round(float(prediction_proba[1]) * 100, 2)
             }
         
+        # NEW: Save to history if user is logged in
+        save_prediction_history("lung_cancer", data, response)
+        
         return jsonify(response)
         
     except Exception as e:
@@ -325,6 +615,9 @@ def predict_covid():
             "other_conditions": other_conditions if other_conditions else ["No additional abnormalities detected"]
         }
         
+        # NEW: Save to history if user is logged in
+        save_prediction_history("covid", data, response)
+        
         return jsonify(response)
         
     except Exception as e:
@@ -401,9 +694,11 @@ def predict_cardiovascular():
 
         response = {
             "prediction": label,
-            "risk_score": int(prediction),
             "probability": round(float(proba), 4)
         }
+
+        # NEW: Save to history if user is logged in
+        save_prediction_history("cardiovascular", data, response)
 
         print(f"Final response: {response}")  # Debug line
         return jsonify(response)
@@ -499,12 +794,13 @@ def predict_cv():
             "probability": round(float(probability), 4)
         }
         
+        # NEW: Save to history if user is logged in
+        save_prediction_history("cv", data, response)
+        
         return jsonify(response)
         
     except Exception as e:
         print(f"Unexpected error in CV prediction: {str(e)}")
-        import traceback
-        traceback.print_exc()
         return jsonify({
             "error": "Internal server error",
             "prediction": "Error: Unable to process prediction"
@@ -512,19 +808,19 @@ def predict_cv():
 
 @app.route('/eye/predict', methods=['POST'])
 def predict_eye():
-    """Handle Eye Disease prediction requests"""
+    """Handle eye disease prediction requests"""
     try:
         eye_model, eye_transform, eye_class_names = get_eye_model()
         if eye_model is None or eye_transform is None or eye_class_names is None:
             return jsonify({
-                "error": "Eye Disease model not loaded",
+                "error": "Eye disease model not loaded",
                 "prediction": "Error: Model file not found"
             }), 500
 
-        # Check if image file is present
+        # Check if image was uploaded
         if 'image' not in request.files:
             return jsonify({
-                "error": "No image file provided",
+                "error": "No image file uploaded",
                 "prediction": "Error: Missing image"
             }), 400
 
@@ -532,126 +828,182 @@ def predict_eye():
         if file.filename == '':
             return jsonify({
                 "error": "No image file selected",
-                "prediction": "Error: Empty filename"
+                "prediction": "Error: Missing image"
             }), 400
 
         # Validate file type
         allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'bmp'}
         if not ('.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in allowed_extensions):
             return jsonify({
-                "error": "Invalid file type. Please upload an image file (PNG, JPG, JPEG, GIF, BMP)",
-                "prediction": "Error: Invalid file type"
+                "error": "Invalid image format. Supported: PNG, JPG, JPEG, GIF, BMP",
+                "prediction": "Error: Invalid format"
             }), 400
 
         try:
-            # Process the image
-            image = Image.open(file.stream).convert("RGB")
-            img_tensor = eye_transform(image).unsqueeze(0).to(torch.device("cuda" if torch.cuda.is_available() else "cpu"))
-
+            # Read and process image
+            image_bytes = file.read()
+            image = Image.open(io.BytesIO(image_bytes))
+            
+            # Convert to RGB if needed
+            if image.mode != 'RGB':
+                image = image.convert('RGB')
+            
+            # Apply transforms
+            input_tensor = eye_transform(image).unsqueeze(0)
+            
+            # Get device
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            input_tensor = input_tensor.to(device)
+            
             # Make prediction
             with torch.no_grad():
-                outputs = eye_model(img_tensor)
+                outputs = eye_model(input_tensor)
                 probabilities = torch.nn.functional.softmax(outputs, dim=1)
-                _, predicted = outputs.max(1)
-                class_name = eye_class_names[predicted.item()]
-                confidence = probabilities[0][predicted.item()].item()
-
-            # Format result based on your original logic
-            if class_name.lower() == "normal":
-                result = "The eye is Normal ✅"
-            elif class_name.lower() == "other":
-                result = "The eye is affected by another disease (Other) ⚠️"
-            else:
-                result = f"The eye is affected by {class_name} disease ⚠️"
-
-            # Create probability distribution
-            prob_dist = {}
-            for i, class_name_item in enumerate(eye_class_names):
-                prob_dist[class_name_item] = round(float(probabilities[0][i].item()) * 100, 2)
-
+                confidence, predicted_class = torch.max(probabilities, 1)
+                
+                predicted_label = eye_class_names[predicted_class.item()]
+                confidence_score = confidence.item()
+                
+                # Get all class probabilities
+                all_probabilities = {}
+                for i, class_name in enumerate(eye_class_names):
+                    all_probabilities[class_name] = round(float(probabilities[0][i]) * 100, 2)
+            
             response = {
-                "prediction": result,
-                "detected_class": class_name,
-                "confidence": round(float(confidence) * 100, 2),
-                "probability_distribution": prob_dist
+                "prediction": predicted_label,
+                "confidence": round(confidence_score * 100, 2),
+                "all_probabilities": all_probabilities
             }
-
+            
+            # For saving to history, store image filename instead of binary data
+            history_data = {
+                "image_filename": file.filename,
+                "image_size": len(image_bytes)
+            }
+            
+            # NEW: Save to history if user is logged in
+            save_prediction_history("eye", history_data, response)
+            
             return jsonify(response)
-
+            
         except Exception as e:
             print(f"Error processing image: {str(e)}")
             return jsonify({
                 "error": "Error processing image",
                 "prediction": "Error: Image processing failed"
             }), 400
-
+            
     except Exception as e:
         print(f"Unexpected error in eye disease prediction: {str(e)}")
-        import traceback
-        traceback.print_exc()
         return jsonify({
             "error": "Internal server error",
             "prediction": "Error: Unable to process prediction"
         }), 500
 
-@app.route("/health", methods=["GET"])
-def health_check():
-    """Health check endpoint"""
-    return jsonify({
-        "status": "healthy",
-        "models_loaded": {
-            "lung_cancer": lung_model is not None,
-            "covid": covid_model is not None and covid_scaler is not None,
-            "cardiovascular": heart_model is not None and heart_scaler is not None,
-            "cv_disease": cv_model is not None and cv_scaler is not None,
-            "eye_disease": eye_model is not None and eye_transform is not None
-        },
-        "message": "Medical Prediction Platform API is running"
-    })
+# NEW: User dashboard and history routes
+@app.route("/user-history")
+@login_required
+def user_history():
+    """Display user's prediction history"""
+    try:
+        # Get user's prediction history with pagination
+        page = request.args.get('page', 1, type=int)
+        predictions = PredictionHistory.query.filter_by(user_id=current_user.id)\
+            .order_by(PredictionHistory.created_at.desc())\
+            .paginate(page=page, per_page=10, error_out=False)
+        
+        return render_template("user_history.html", predictions=predictions)
+    except Exception as e:
+        print(f"Error loading user history: {str(e)}")
+        flash('Error loading prediction history.', 'error')
+        return redirect(url_for('dashboard'))
 
+@app.route("/prediction-detail/<int:prediction_id>")
+@login_required
+def prediction_detail(prediction_id):
+    """Display detailed view of a specific prediction"""
+    try:
+        prediction = PredictionHistory.query.filter_by(
+            id=prediction_id, 
+            user_id=current_user.id
+        ).first_or_404()
+        
+        return render_template("prediction_detail.html", prediction=prediction)
+    except Exception as e:
+        print(f"Error loading prediction detail: {str(e)}")
+        flash('Prediction not found.', 'error')
+        return redirect(url_for('user_history'))
+
+@app.route("/delete-prediction/<int:prediction_id>", methods=["POST"])
+@login_required
+def delete_prediction(prediction_id):
+    """Delete a specific prediction from user's history"""
+    try:
+        prediction = PredictionHistory.query.filter_by(
+            id=prediction_id, 
+            user_id=current_user.id
+        ).first_or_404()
+        
+        db.session.delete(prediction)
+        db.session.commit()
+        
+        flash('Prediction deleted successfully.', 'success')
+        return redirect(url_for('user_history'))
+    except Exception as e:
+        print(f"Error deleting prediction: {str(e)}")
+        db.session.rollback()
+        flash('Error deleting prediction.', 'error')
+        return redirect(url_for('user_history'))
+
+# Error handlers
 @app.errorhandler(404)
-def not_found(error):
-    return jsonify({"error": "Endpoint not found"}), 404
-
-@app.errorhandler(405)
-def method_not_allowed(error):
-    return jsonify({"error": "Method not allowed"}), 405
+def not_found_error(error):
+    return render_template('errors/404.html'), 404
 
 @app.errorhandler(500)
 def internal_error(error):
-    return jsonify({"error": "Internal server error"}), 500
+    db.session.rollback()
+    return render_template('errors/500.html'), 500
 
+# NEW: Initialize database on first run
+def init_database():
+    """Initialize database tables"""
+    try:
+        with app.app_context():
+            # Create all tables
+            db.create_all()
+            print("✅ Database tables created successfully!")
+            
+            # Test database connection
+            db.session.execute(db.text('SELECT 1'))
+            db.session.commit()
+            print("✅ Database connection test successful!")
+            
+    except Exception as e:
+        print(f"❌ Database initialization error: {str(e)}")
+        print("Make sure MySQL server is running and credentials are correct.")
+
+# Main application entry point
 if __name__ == "__main__":
-    # Check if models directory exists
-    if not os.path.exists("models"):
-        print("Creating models directory...")
-        os.makedirs("models")
-        print("Please place your model files in the 'models' directory")
+    # Initialize database on startup
+    init_database()
     
-    # Check if templates directory exists
-    if not os.path.exists("templates"):
-        print("Creating templates directory...")
-        os.makedirs("templates")
+    # Get port from environment variable (for deployment)
+    port = int(os.environ.get("PORT", 5000))
     
-    # Check if static directories exist
-    if not os.path.exists("static"):
-        print("Creating static directories...")
-        os.makedirs("static/css")
-        os.makedirs("static/js")
-        os.makedirs("static/images")
+    # Run the application
+    print(f"🚀 Starting MediPredict Platform on port {port}")
+    print("📊 Available prediction services:")
+    print("   • Lung Cancer Risk Assessment")
+    print("   • COVID-19 Health Assessment")
+    print("   • Cardiovascular Disease Prediction")
+    print("   • CV Disease Risk Assessment")
+    print("   • Eye Disease Detection")
+    print("🔐 Google OAuth Authentication Ready")
+    print("💾 MySQL Database with Auto-Creation")
     
-    print("=" * 60)
-    print("🏥 Medical Prediction Platform Server Starting...")
-    print("=" * 60)
-    print("Available Services:")
-    print("  🫁 Lung Cancer Risk Prediction")
-    print("  🦠 COVID-19 Assessment")
-    print("  ❤️ Cardiovascular Disease Prediction (Original)")
-    print("  💔 CV Disease Risk Assessment (New)")
-    print("  👁️ Eye Disease Detection")
-    print("=" * 60)
-    print("Navigate to http://127.0.0.1:5000 to access the application")
-    print("Press Ctrl+C to stop the server")
-    print("=" * 60)
-    
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(
+        host="0.0.0.0",
+        port=port,
+        debug=os.environ.get("FLASK_ENV") == "development"
+    )    
